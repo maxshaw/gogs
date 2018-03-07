@@ -14,21 +14,21 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	FORK         = "repo/pulls/fork"
-	COMPARE_PULL = "repo/pulls/compare"
-	PULL_COMMITS = "repo/pulls/commits"
-	PULL_FILES   = "repo/pulls/files"
+	FORK             = "repo/pulls/fork"
+	RouteComparePull = "repo/pulls/compare"
+	RoutePullCommits = "repo/pulls/commits"
+	RoutePullFiles   = "repo/pulls/files"
 
-	PULL_REQUEST_TEMPLATE_KEY = "PullRequestTemplate"
+	RoutePullRequestTemplateKey = "PullRequestTemplate"
 )
 
 var (
@@ -285,7 +285,7 @@ func ViewPullCommits(c *context.Context) {
 	c.Data["Commits"] = commits
 	c.Data["CommitsCount"] = commits.Len()
 
-	c.Success(PULL_COMMITS)
+	c.Success(RoutePullCommits)
 }
 
 func ViewPullFiles(c *context.Context) {
@@ -380,7 +380,7 @@ func ViewPullFiles(c *context.Context) {
 	}
 
 	c.Data["RequireHighlightJS"] = true
-	c.Success(PULL_FILES)
+	c.Success(RoutePullFiles)
 }
 
 func MergePullRequest(c *context.Context) {
@@ -521,7 +521,7 @@ func ParseCompareInfo(c *context.Context) (*models.User, *models.Repository, *gi
 	if err != nil {
 		if git.IsErrNoMergeBase(err) {
 			c.Data["IsNoMergeBase"] = true
-			c.Success(COMPARE_PULL)
+			c.Success(RouteComparePull)
 		} else {
 			c.ServerError("GetPullRequestInfo", err)
 		}
@@ -595,7 +595,7 @@ func CompareAndPullRequest(c *context.Context) {
 	c.Data["PageIsComparePull"] = true
 	c.Data["IsDiffCompare"] = true
 	c.Data["RequireHighlightJS"] = true
-	setTemplateIfExists(c, PULL_REQUEST_TEMPLATE_KEY, PullRequestTemplateCandidates)
+	setTemplateIfExists(c, RoutePullRequestTemplateKey, PullRequestTemplateCandidates)
 	renderAttachmentSettings(c)
 
 	headUser, headRepo, headGitRepo, prInfo, baseBranch, headBranch := ParseCompareInfo(c)
@@ -612,7 +612,7 @@ func CompareAndPullRequest(c *context.Context) {
 	} else {
 		c.Data["HasPullRequest"] = true
 		c.Data["PullRequest"] = pr
-		c.Success(COMPARE_PULL)
+		c.Success(RouteComparePull)
 		return
 	}
 
@@ -635,7 +635,7 @@ func CompareAndPullRequest(c *context.Context) {
 	}
 
 	c.Data["IsSplitStyle"] = c.Query("style") == "split"
-	c.Success(COMPARE_PULL)
+	c.Success(RouteComparePull)
 }
 
 func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
@@ -674,7 +674,7 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 			return
 		}
 
-		c.Success(COMPARE_PULL)
+		c.Success(RouteComparePull)
 		return
 	}
 

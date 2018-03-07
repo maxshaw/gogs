@@ -11,16 +11,16 @@ import (
 
 	"github.com/Unknwon/paginater"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/routes/repo"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/routes/repo"
 )
 
 const (
-	FOLLOWERS = "user/meta/followers"
-	STARS     = "user/meta/stars"
+	RouteFollowers = "user/meta/followers"
+	_              = "user/meta/stars"
 )
 
 func GetUserByName(c *context.Context, name string) *models.User {
@@ -111,7 +111,7 @@ func Profile(c *context.Context) {
 		c.Data["Page"] = paginater.New(int(count), setting.UI.User.RepoPagingNum, page, 5)
 	}
 
-	c.HTML(200, PROFILE)
+	c.HTML(200, RouteProfile)
 }
 
 func Followers(c *context.Context) {
@@ -123,7 +123,7 @@ func Followers(c *context.Context) {
 	c.Data["CardsTitle"] = c.Tr("user.followers")
 	c.Data["PageIsFollowers"] = true
 	c.Data["Owner"] = u
-	repo.RenderUserCards(c, u.NumFollowers, u.GetFollowers, FOLLOWERS)
+	repo.RenderUserCards(c, u.NumFollowers, u.GetFollowers, RouteFollowers)
 }
 
 func Following(c *context.Context) {
@@ -135,7 +135,7 @@ func Following(c *context.Context) {
 	c.Data["CardsTitle"] = c.Tr("user.following")
 	c.Data["PageIsFollowing"] = true
 	c.Data["Owner"] = u
-	repo.RenderUserCards(c, u.NumFollowing, u.GetFollowing, FOLLOWERS)
+	repo.RenderUserCards(c, u.NumFollowing, u.GetFollowing, RouteFollowers)
 }
 
 func Stars(c *context.Context) {

@@ -1,3 +1,4 @@
+#!/bin/sh
 outPath=./output
 
 rm -rf $outPath

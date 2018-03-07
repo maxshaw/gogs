@@ -29,20 +29,20 @@ import (
 	log "gopkg.in/clog.v1"
 	"gopkg.in/macaron.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/bindata"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/template"
-	"github.com/gogits/gogs/routes"
-	"github.com/gogits/gogs/routes/admin"
-	apiv1 "github.com/gogits/gogs/routes/api/v1"
-	"github.com/gogits/gogs/routes/dev"
-	"github.com/gogits/gogs/routes/org"
-	"github.com/gogits/gogs/routes/repo"
-	"github.com/gogits/gogs/routes/user"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/template"
+	"github.com/maxshaw/gogs/routes"
+	"github.com/maxshaw/gogs/routes/admin"
+	apiv1 "github.com/maxshaw/gogs/routes/api/v1"
+	"github.com/maxshaw/gogs/routes/dev"
+	"github.com/maxshaw/gogs/routes/org"
+	"github.com/maxshaw/gogs/routes/repo"
+	"github.com/maxshaw/gogs/routes/user"
+	"github.com/maxshaw/gogs/pkg/bindata"
 )
 
 var Web = cli.Command{
@@ -146,7 +146,7 @@ func newMacaron() *macaron.Macaron {
 	}))
 	m.Use(toolbox.Toolboxer(m, toolbox.Options{
 		HealthCheckFuncs: []*toolbox.HealthCheckFuncDesc{
-			&toolbox.HealthCheckFuncDesc{
+			{
 				Desc: "Database connection",
 				Func: models.Ping,
 			},

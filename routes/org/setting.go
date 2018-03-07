@@ -9,24 +9,24 @@ import (
 
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/routes/user"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/routes/user"
 )
 
 const (
-	SETTINGS_OPTIONS  = "org/settings/options"
-	SETTINGS_DELETE   = "org/settings/delete"
-	SETTINGS_WEBHOOKS = "org/settings/webhooks"
+	RouteSettingsOptions  = "org/settings/options"
+	RouteSettingsDelete   = "org/settings/delete"
+	RouteSettingsWebHooks = "org/settings/webhooks"
 )
 
 func Settings(c *context.Context) {
 	c.Data["Title"] = c.Tr("org.settings")
 	c.Data["PageIsSettingsOptions"] = true
-	c.HTML(200, SETTINGS_OPTIONS)
+	c.HTML(200, RouteSettingsOptions)
 }
 
 func SettingsPost(c *context.Context, f form.UpdateOrgSetting) {
@@ -34,7 +34,7 @@ func SettingsPost(c *context.Context, f form.UpdateOrgSetting) {
 	c.Data["PageIsSettingsOptions"] = true
 
 	if c.HasError() {
-		c.HTML(200, SETTINGS_OPTIONS)
+		c.HTML(200, RouteSettingsOptions)
 		return
 	}
 
@@ -48,15 +48,15 @@ func SettingsPost(c *context.Context, f form.UpdateOrgSetting) {
 			return
 		} else if isExist {
 			c.Data["OrgName"] = true
-			c.RenderWithErr(c.Tr("form.username_been_taken"), SETTINGS_OPTIONS, &f)
+			c.RenderWithErr(c.Tr("form.username_been_taken"), RouteSettingsOptions, &f)
 			return
 		} else if err = models.ChangeUserName(org, f.Name); err != nil {
 			c.Data["OrgName"] = true
 			switch {
 			case models.IsErrNameReserved(err):
-				c.RenderWithErr(c.Tr("user.form.name_reserved"), SETTINGS_OPTIONS, &f)
+				c.RenderWithErr(c.Tr("user.form.name_reserved"), RouteSettingsOptions, &f)
 			case models.IsErrNamePatternNotAllowed(err):
-				c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed"), SETTINGS_OPTIONS, &f)
+				c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed"), RouteSettingsOptions, &f)
 			default:
 				c.Handle(500, "ChangeUserName", err)
 			}
@@ -114,7 +114,7 @@ func SettingsDelete(c *context.Context) {
 	if c.Req.Method == "POST" {
 		if _, err := models.UserSignIn(c.User.Name, c.Query("password")); err != nil {
 			if errors.IsUserNotExist(err) {
-				c.RenderWithErr(c.Tr("form.enterred_invalid_password"), SETTINGS_DELETE, nil)
+				c.RenderWithErr(c.Tr("form.enterred_invalid_password"), RouteSettingsDelete, nil)
 			} else {
 				c.Handle(500, "UserSignIn", err)
 			}
@@ -135,7 +135,7 @@ func SettingsDelete(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, SETTINGS_DELETE)
+	c.HTML(200, RouteSettingsDelete)
 }
 
 func Webhooks(c *context.Context) {
@@ -152,7 +152,7 @@ func Webhooks(c *context.Context) {
 	}
 
 	c.Data["Webhooks"] = ws
-	c.HTML(200, SETTINGS_WEBHOOKS)
+	c.HTML(200, RouteSettingsWebHooks)
 }
 
 func DeleteWebhook(c *context.Context) {

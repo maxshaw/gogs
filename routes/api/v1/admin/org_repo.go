@@ -5,9 +5,9 @@
 package admin
 
 import (
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
 )
 
 func GetRepositoryByParams(c *context.APIContext) *models.Repository {

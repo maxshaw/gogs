@@ -10,15 +10,15 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	COMMITS = "repo/commits"
-	DIFF    = "repo/diff/page"
+	RouteCommits = "repo/commits"
+	RouteDiff    = "repo/diff/page"
 )
 
 func RefCommits(c *context.Context) {
@@ -84,7 +84,7 @@ func renderCommits(c *context.Context, filename string) {
 
 	c.Data["Username"] = c.Repo.Owner.Name
 	c.Data["Reponame"] = c.Repo.Repository.Name
-	c.HTML(200, COMMITS)
+	c.HTML(200, RouteCommits)
 }
 
 func Commits(c *context.Context) {
@@ -113,7 +113,7 @@ func SearchCommits(c *context.Context) {
 	c.Data["Username"] = c.Repo.Owner.Name
 	c.Data["Reponame"] = c.Repo.Repository.Name
 	c.Data["Branch"] = c.Repo.BranchName
-	c.HTML(200, COMMITS)
+	c.HTML(200, RouteCommits)
 }
 
 func FileHistory(c *context.Context) {
@@ -177,7 +177,7 @@ func Diff(c *context.Context) {
 		c.Data["BeforeSourcePath"] = setting.AppSubURL + "/" + path.Join(userName, repoName, "src", parents[0])
 	}
 	c.Data["RawPath"] = setting.AppSubURL + "/" + path.Join(userName, repoName, "raw", commitID)
-	c.HTML(200, DIFF)
+	c.HTML(200, RouteDiff)
 }
 
 func RawDiff(c *context.Context) {
@@ -236,5 +236,5 @@ func CompareDiff(c *context.Context) {
 	c.Data["SourcePath"] = setting.AppSubURL + "/" + path.Join(userName, repoName, "src", afterCommitID)
 	c.Data["BeforeSourcePath"] = setting.AppSubURL + "/" + path.Join(userName, repoName, "src", beforeCommitID)
 	c.Data["RawPath"] = setting.AppSubURL + "/" + path.Join(userName, repoName, "raw", afterCommitID)
-	c.HTML(200, DIFF)
+	c.HTML(200, RouteDiff)
 }

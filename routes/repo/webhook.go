@@ -14,17 +14,17 @@ import (
 	git "github.com/gogits/git-module"
 	api "github.com/gogits/go-gogs-client"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	WEBHOOKS        = "repo/settings/webhook/base"
-	WEBHOOK_NEW     = "repo/settings/webhook/new"
-	ORG_WEBHOOK_NEW = "org/settings/webhook_new"
+	RouteWebHooks      = "repo/settings/webhook/base"
+	RouteWebHookNew    = "repo/settings/webhook/new"
+	RouteOrgWebHookNew = "org/settings/webhook_new"
 )
 
 func Webhooks(c *context.Context) {
@@ -41,7 +41,7 @@ func Webhooks(c *context.Context) {
 	}
 	c.Data["Webhooks"] = ws
 
-	c.HTML(200, WEBHOOKS)
+	c.HTML(200, RouteWebHooks)
 }
 
 type OrgRepoCtx struct {
@@ -58,7 +58,7 @@ func getOrgRepoCtx(c *context.Context) (*OrgRepoCtx, error) {
 		return &OrgRepoCtx{
 			RepoID:      c.Repo.Repository.ID,
 			Link:        c.Repo.RepoLink,
-			NewTemplate: WEBHOOK_NEW,
+			NewTemplate: RouteWebHookNew,
 		}, nil
 	}
 
@@ -67,7 +67,7 @@ func getOrgRepoCtx(c *context.Context) (*OrgRepoCtx, error) {
 		return &OrgRepoCtx{
 			OrgID:       c.Org.Organization.ID,
 			Link:        c.Org.OrgLink,
-			NewTemplate: ORG_WEBHOOK_NEW,
+			NewTemplate: RouteOrgWebHookNew,
 		}, nil
 	}
 

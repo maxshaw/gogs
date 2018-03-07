@@ -18,29 +18,29 @@ import (
 	"github.com/pquerna/otp/totp"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	SETTINGS_PROFILE                   = "user/settings/profile"
-	SETTINGS_AVATAR                    = "user/settings/avatar"
-	SETTINGS_PASSWORD                  = "user/settings/password"
-	SETTINGS_EMAILS                    = "user/settings/email"
-	SETTINGS_SSH_KEYS                  = "user/settings/sshkeys"
-	SETTINGS_SECURITY                  = "user/settings/security"
-	SETTINGS_TWO_FACTOR_ENABLE         = "user/settings/two_factor_enable"
-	SETTINGS_TWO_FACTOR_RECOVERY_CODES = "user/settings/two_factor_recovery_codes"
-	SETTINGS_REPOSITORIES              = "user/settings/repositories"
-	SETTINGS_ORGANIZATIONS             = "user/settings/organizations"
-	SETTINGS_APPLICATIONS              = "user/settings/applications"
-	SETTINGS_DELETE                    = "user/settings/delete"
-	NOTIFICATION                       = "user/notification"
+	RouteSettingsProfile                = "user/settings/profile"
+	RouteSettingsAvatar                 = "user/settings/avatar"
+	RouteSettingsPassword               = "user/settings/password"
+	RouteSettingsEmails                 = "user/settings/email"
+	RouteSettingsSSHKeys                = "user/settings/sshkeys"
+	RouteSettingsSecurity               = "user/settings/security"
+	RouteSettingsTwoFactorEnable        = "user/settings/two_factor_enable"
+	RouteSettingsTwoFactorRecoveryCodes = "user/settings/two_factor_recovery_codes"
+	RouteSettingsRepositories           = "user/settings/repositories"
+	RouteSettingsOrganizations          = "user/settings/organizations"
+	RouteSettingsApplications           = "user/settings/applications"
+	RouteSettingsDelete                 = "user/settings/delete"
+	_                                   = "user/notification"
 )
 
 func Settings(c *context.Context) {
@@ -52,7 +52,7 @@ func Settings(c *context.Context) {
 	c.Data["email"] = c.User.Email
 	c.Data["website"] = c.User.Website
 	c.Data["location"] = c.User.Location
-	c.Success(SETTINGS_PROFILE)
+	c.Success(RouteSettingsProfile)
 }
 
 func SettingsPost(c *context.Context, f form.UpdateProfile) {
@@ -61,7 +61,7 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 	c.Data["origin_name"] = c.User.Name
 
 	if c.HasError() {
-		c.Success(SETTINGS_PROFILE)
+		c.Success(RouteSettingsProfile)
 		return
 	}
 
@@ -86,7 +86,7 @@ func SettingsPost(c *context.Context, f form.UpdateProfile) {
 					return
 				}
 
-				c.RenderWithErr(msg, SETTINGS_PROFILE, &f)
+				c.RenderWithErr(msg, RouteSettingsProfile, &f)
 				return
 			}
 
@@ -156,7 +156,7 @@ func UpdateAvatarSetting(c *context.Context, f form.Avatar, ctxUser *models.User
 func SettingsAvatar(c *context.Context) {
 	c.Title("settings.avatar")
 	c.PageIs("SettingsAvatar")
-	c.Success(SETTINGS_AVATAR)
+	c.Success(RouteSettingsAvatar)
 }
 
 func SettingsAvatarPost(c *context.Context, f form.Avatar) {
@@ -180,7 +180,7 @@ func SettingsDeleteAvatar(c *context.Context) {
 func SettingsPassword(c *context.Context) {
 	c.Title("settings.password")
 	c.PageIs("SettingsPassword")
-	c.Success(SETTINGS_PASSWORD)
+	c.Success(RouteSettingsPassword)
 }
 
 func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
@@ -188,7 +188,7 @@ func SettingsPasswordPost(c *context.Context, f form.ChangePassword) {
 	c.PageIs("SettingsPassword")
 
 	if c.HasError() {
-		c.Success(SETTINGS_PASSWORD)
+		c.Success(RouteSettingsPassword)
 		return
 	}
 
@@ -225,7 +225,7 @@ func SettingsEmails(c *context.Context) {
 	}
 	c.Data["Emails"] = emails
 
-	c.Success(SETTINGS_EMAILS)
+	c.Success(RouteSettingsEmails)
 }
 
 func SettingsEmailPost(c *context.Context, f form.AddEmail) {
@@ -252,7 +252,7 @@ func SettingsEmailPost(c *context.Context, f form.AddEmail) {
 	c.Data["Emails"] = emails
 
 	if c.HasError() {
-		c.Success(SETTINGS_EMAILS)
+		c.Success(RouteSettingsEmails)
 		return
 	}
 
@@ -263,7 +263,7 @@ func SettingsEmailPost(c *context.Context, f form.AddEmail) {
 	}
 	if err := models.AddEmailAddress(email); err != nil {
 		if models.IsErrEmailAlreadyUsed(err) {
-			c.RenderWithErr(c.Tr("form.email_been_used"), SETTINGS_EMAILS, &f)
+			c.RenderWithErr(c.Tr("form.email_been_used"), RouteSettingsEmails, &f)
 		} else {
 			c.ServerError("AddEmailAddress", err)
 		}
@@ -311,7 +311,7 @@ func SettingsSSHKeys(c *context.Context) {
 	}
 	c.Data["Keys"] = keys
 
-	c.Success(SETTINGS_SSH_KEYS)
+	c.Success(RouteSettingsSSHKeys)
 }
 
 func SettingsSSHKeysPost(c *context.Context, f form.AddSSHKey) {
@@ -326,7 +326,7 @@ func SettingsSSHKeysPost(c *context.Context, f form.AddSSHKey) {
 	c.Data["Keys"] = keys
 
 	if c.HasError() {
-		c.Success(SETTINGS_SSH_KEYS)
+		c.Success(RouteSettingsSSHKeys)
 		return
 	}
 
@@ -346,10 +346,10 @@ func SettingsSSHKeysPost(c *context.Context, f form.AddSSHKey) {
 		switch {
 		case models.IsErrKeyAlreadyExist(err):
 			c.FormErr("Content")
-			c.RenderWithErr(c.Tr("settings.ssh_key_been_used"), SETTINGS_SSH_KEYS, &f)
+			c.RenderWithErr(c.Tr("settings.ssh_key_been_used"), RouteSettingsSSHKeys, &f)
 		case models.IsErrKeyNameAlreadyUsed(err):
 			c.FormErr("Title")
-			c.RenderWithErr(c.Tr("settings.ssh_key_name_used"), SETTINGS_SSH_KEYS, &f)
+			c.RenderWithErr(c.Tr("settings.ssh_key_name_used"), RouteSettingsSSHKeys, &f)
 		default:
 			c.ServerError("AddPublicKey", err)
 		}
@@ -383,7 +383,7 @@ func SettingsSecurity(c *context.Context) {
 	}
 	c.Data["TwoFactor"] = t
 
-	c.Success(SETTINGS_SECURITY)
+	c.Success(RouteSettingsSecurity)
 }
 
 func SettingsTwoFactorEnable(c *context.Context) {
@@ -428,7 +428,7 @@ func SettingsTwoFactorEnable(c *context.Context) {
 
 	c.Session.Set("twoFactorSecret", c.Data["TwoFactorSecret"])
 	c.Session.Set("twoFactorURL", key.String())
-	c.Success(SETTINGS_TWO_FACTOR_ENABLE)
+	c.Success(RouteSettingsTwoFactorEnable)
 }
 
 func SettingsTwoFactorEnablePost(c *context.Context) {
@@ -472,7 +472,7 @@ func SettingsTwoFactorRecoveryCodes(c *context.Context) {
 	}
 	c.Data["RecoveryCodes"] = recoveryCodes
 
-	c.Success(SETTINGS_TWO_FACTOR_RECOVERY_CODES)
+	c.Success(RouteSettingsTwoFactorRecoveryCodes)
 }
 
 func SettingsTwoFactorRecoveryCodesPost(c *context.Context) {
@@ -522,7 +522,7 @@ func SettingsRepos(c *context.Context) {
 	}
 	c.Data["Repos"] = repos
 
-	c.Success(SETTINGS_REPOSITORIES)
+	c.Success(RouteSettingsRepositories)
 }
 
 func SettingsLeaveRepo(c *context.Context) {
@@ -554,7 +554,7 @@ func SettingsOrganizations(c *context.Context) {
 	}
 	c.Data["Orgs"] = orgs
 
-	c.Success(SETTINGS_ORGANIZATIONS)
+	c.Success(RouteSettingsOrganizations)
 }
 
 func SettingsLeaveOrganization(c *context.Context) {
@@ -583,7 +583,7 @@ func SettingsApplications(c *context.Context) {
 	}
 	c.Data["Tokens"] = tokens
 
-	c.Success(SETTINGS_APPLICATIONS)
+	c.Success(RouteSettingsApplications)
 }
 
 func SettingsApplicationsPost(c *context.Context, f form.NewAccessToken) {
@@ -598,7 +598,7 @@ func SettingsApplicationsPost(c *context.Context, f form.NewAccessToken) {
 		}
 
 		c.Data["Tokens"] = tokens
-		c.Success(SETTINGS_APPLICATIONS)
+		c.Success(RouteSettingsApplications)
 		return
 	}
 
@@ -635,7 +635,7 @@ func SettingsDelete(c *context.Context) {
 	if c.Req.Method == "POST" {
 		if _, err := models.UserSignIn(c.User.Name, c.Query("password")); err != nil {
 			if errors.IsUserNotExist(err) {
-				c.RenderWithErr(c.Tr("form.enterred_invalid_password"), SETTINGS_DELETE, nil)
+				c.RenderWithErr(c.Tr("form.enterred_invalid_password"), RouteSettingsDelete, nil)
 			} else {
 				c.ServerError("UserSignIn", err)
 			}
@@ -660,5 +660,5 @@ func SettingsDelete(c *context.Context) {
 		return
 	}
 
-	c.Success(SETTINGS_DELETE)
+	c.Success(RouteSettingsDelete)
 }

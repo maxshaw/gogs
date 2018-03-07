@@ -17,8 +17,8 @@ import (
 	log "gopkg.in/clog.v1"
 	"gopkg.in/ini.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 var Backup = cli.Command{

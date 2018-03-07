@@ -8,15 +8,15 @@ import (
 	"github.com/Unknwon/com"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	MEMBERS       = "org/member/members"
-	MEMBER_INVITE = "org/member/invite"
+	RouteMembers      = "org/member/members"
+	RouteMemberInvite = "org/member/invite"
 )
 
 func Members(c *context.Context) {
@@ -30,7 +30,7 @@ func Members(c *context.Context) {
 	}
 	c.Data["Members"] = org.Members
 
-	c.HTML(200, MEMBERS)
+	c.HTML(200, RouteMembers)
 }
 
 func MembersAction(c *context.Context) {
@@ -119,5 +119,5 @@ func Invitation(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, MEMBER_INVITE)
+	c.HTML(200, RouteMemberInvite)
 }

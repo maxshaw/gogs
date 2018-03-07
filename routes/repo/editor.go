@@ -14,19 +14,19 @@ import (
 	log "gopkg.in/clog.v1"
 
 	"github.com/gogits/git-module"
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/template"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/template"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	EDIT_FILE         = "repo/editor/edit"
-	EDIT_DIFF_PREVIEW = "repo/editor/diff_preview"
-	DELETE_FILE       = "repo/editor/delete"
-	UPLOAD_FILE       = "repo/editor/upload"
+	RouteEditFile        = "repo/editor/edit"
+	RouteEditDiffPreview = "repo/editor/diff_preview"
+	RouteEditorDelete    = "repo/editor/delete"
+	RouteEditorUpload    = "repo/editor/upload"
 )
 
 // getParentTreeFields returns list of parent tree names and corresponding tree paths
@@ -113,7 +113,7 @@ func editFile(c *context.Context, isNewFile bool) {
 	c.Data["PreviewableFileModes"] = strings.Join(setting.Repository.Editor.PreviewableFileModes, ",")
 	c.Data["EditorconfigURLPrefix"] = fmt.Sprintf("%s/api/v1/repos/%s/editorconfig/", setting.AppSubURL, c.Repo.Repository.FullName())
 
-	c.Success(EDIT_FILE)
+	c.Success(RouteEditFile)
 }
 
 func EditFile(c *context.Context) {
@@ -159,20 +159,20 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 	c.Data["PreviewableFileModes"] = strings.Join(setting.Repository.Editor.PreviewableFileModes, ",")
 
 	if c.HasError() {
-		c.Success(EDIT_FILE)
+		c.Success(RouteEditFile)
 		return
 	}
 
 	if len(f.TreePath) == 0 {
 		c.FormErr("TreePath")
-		c.RenderWithErr(c.Tr("repo.editor.filename_cannot_be_empty"), EDIT_FILE, &f)
+		c.RenderWithErr(c.Tr("repo.editor.filename_cannot_be_empty"), RouteEditFile, &f)
 		return
 	}
 
 	if oldBranchName != branchName {
 		if _, err := c.Repo.Repository.GetBranch(branchName); err == nil {
 			c.FormErr("NewBranchName")
-			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), EDIT_FILE, &f)
+			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), RouteEditFile, &f)
 			return
 		}
 	}
@@ -193,17 +193,17 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		if index != len(treeNames)-1 {
 			if !entry.IsDir() {
 				c.FormErr("TreePath")
-				c.RenderWithErr(c.Tr("repo.editor.directory_is_a_file", part), EDIT_FILE, &f)
+				c.RenderWithErr(c.Tr("repo.editor.directory_is_a_file", part), RouteEditFile, &f)
 				return
 			}
 		} else {
 			if entry.IsLink() {
 				c.FormErr("TreePath")
-				c.RenderWithErr(c.Tr("repo.editor.file_is_a_symlink", part), EDIT_FILE, &f)
+				c.RenderWithErr(c.Tr("repo.editor.file_is_a_symlink", part), RouteEditFile, &f)
 				return
 			} else if entry.IsDir() {
 				c.FormErr("TreePath")
-				c.RenderWithErr(c.Tr("repo.editor.filename_is_a_directory", part), EDIT_FILE, &f)
+				c.RenderWithErr(c.Tr("repo.editor.filename_is_a_directory", part), RouteEditFile, &f)
 				return
 			}
 		}
@@ -214,7 +214,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		if err != nil {
 			if git.IsErrNotExist(err) {
 				c.FormErr("TreePath")
-				c.RenderWithErr(c.Tr("repo.editor.file_editing_no_longer_exists", oldTreePath), EDIT_FILE, &f)
+				c.RenderWithErr(c.Tr("repo.editor.file_editing_no_longer_exists", oldTreePath), RouteEditFile, &f)
 			} else {
 				c.ServerError("GetTreeEntryByPath", err)
 			}
@@ -229,7 +229,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 
 			for _, file := range files {
 				if file == f.TreePath {
-					c.RenderWithErr(c.Tr("repo.editor.file_changed_while_editing", c.Repo.RepoLink+"/compare/"+lastCommit+"..."+c.Repo.CommitID), EDIT_FILE, &f)
+					c.RenderWithErr(c.Tr("repo.editor.file_changed_while_editing", c.Repo.RepoLink+"/compare/"+lastCommit+"..."+c.Repo.CommitID), RouteEditFile, &f)
 					return
 				}
 			}
@@ -247,7 +247,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		}
 		if entry != nil {
 			c.FormErr("TreePath")
-			c.RenderWithErr(c.Tr("repo.editor.file_already_exists", f.TreePath), EDIT_FILE, &f)
+			c.RenderWithErr(c.Tr("repo.editor.file_already_exists", f.TreePath), RouteEditFile, &f)
 			return
 		}
 	}
@@ -277,7 +277,7 @@ func editFilePost(c *context.Context, f form.EditRepoFile, isNewFile bool) {
 		IsNewFile:    isNewFile,
 	}); err != nil {
 		c.FormErr("TreePath")
-		c.RenderWithErr(c.Tr("repo.editor.fail_to_update_file", f.TreePath, err), EDIT_FILE, &f)
+		c.RenderWithErr(c.Tr("repo.editor.fail_to_update_file", f.TreePath, err), RouteEditFile, &f)
 		return
 	}
 
@@ -320,7 +320,7 @@ func DiffPreviewPost(c *context.Context, f form.EditPreviewDiff) {
 	}
 	c.Data["File"] = diff.Files[0]
 
-	c.HTML(200, EDIT_DIFF_PREVIEW)
+	c.HTML(200, RouteEditDiffPreview)
 }
 
 func DeleteFile(c *context.Context) {
@@ -331,7 +331,7 @@ func DeleteFile(c *context.Context) {
 	c.Data["commit_message"] = ""
 	c.Data["commit_choice"] = "direct"
 	c.Data["new_branch_name"] = ""
-	c.HTML(200, DELETE_FILE)
+	c.HTML(200, RouteEditorDelete)
 }
 
 func DeleteFilePost(c *context.Context, f form.DeleteRepoFile) {
@@ -351,14 +351,14 @@ func DeleteFilePost(c *context.Context, f form.DeleteRepoFile) {
 	c.Data["new_branch_name"] = branchName
 
 	if c.HasError() {
-		c.HTML(200, DELETE_FILE)
+		c.HTML(200, RouteEditorDelete)
 		return
 	}
 
 	if oldBranchName != branchName {
 		if _, err := c.Repo.Repository.GetBranch(branchName); err == nil {
 			c.Data["Err_NewBranchName"] = true
-			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), DELETE_FILE, &f)
+			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), RouteEditorDelete, &f)
 			return
 		}
 	}
@@ -417,7 +417,7 @@ func UploadFile(c *context.Context) {
 	c.Data["commit_choice"] = "direct"
 	c.Data["new_branch_name"] = ""
 
-	c.HTML(200, UPLOAD_FILE)
+	c.HTML(200, RouteEditorUpload)
 }
 
 func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
@@ -448,14 +448,14 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 	c.Data["new_branch_name"] = branchName
 
 	if c.HasError() {
-		c.HTML(200, UPLOAD_FILE)
+		c.HTML(200, RouteEditorUpload)
 		return
 	}
 
 	if oldBranchName != branchName {
 		if _, err := c.Repo.Repository.GetBranch(branchName); err == nil {
 			c.Data["Err_NewBranchName"] = true
-			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), UPLOAD_FILE, &f)
+			c.RenderWithErr(c.Tr("repo.editor.branch_already_exists", branchName), RouteEditorUpload, &f)
 			return
 		}
 	}
@@ -477,7 +477,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		// User can only upload files to a directory.
 		if !entry.IsDir() {
 			c.Data["Err_TreePath"] = true
-			c.RenderWithErr(c.Tr("repo.editor.directory_is_a_file", part), UPLOAD_FILE, &f)
+			c.RenderWithErr(c.Tr("repo.editor.directory_is_a_file", part), RouteEditorUpload, &f)
 			return
 		}
 	}
@@ -501,7 +501,7 @@ func UploadFilePost(c *context.Context, f form.UploadRepoFile) {
 		Files:        f.Files,
 	}); err != nil {
 		c.Data["Err_TreePath"] = true
-		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, err), UPLOAD_FILE, &f)
+		c.RenderWithErr(c.Tr("repo.editor.unable_to_upload_files", f.TreePath, err), RouteEditorUpload, &f)
 		return
 	}
 

@@ -15,17 +15,17 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	CREATE  = "repo/create"
-	MIGRATE = "repo/migrate"
+	RouteCreate  = "repo/create"
+	RouteMigrate = "repo/migrate"
 )
 
 func MustBeNotBare(c *context.Context) {
@@ -82,7 +82,7 @@ func Create(c *context.Context) {
 	}
 	c.Data["ContextUser"] = ctxUser
 
-	c.HTML(200, CREATE)
+	c.HTML(200, RouteCreate)
 }
 
 func handleCreateError(c *context.Context, owner *models.User, err error, name, tpl string, form interface{}) {
@@ -117,7 +117,7 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 	c.Data["ContextUser"] = ctxUser
 
 	if c.HasError() {
-		c.HTML(200, CREATE)
+		c.HTML(200, RouteCreate)
 		return
 	}
 
@@ -142,7 +142,7 @@ func CreatePost(c *context.Context, f form.CreateRepo) {
 		}
 	}
 
-	handleCreateError(c, ctxUser, err, "CreatePost", CREATE, &f)
+	handleCreateError(c, ctxUser, err, "CreatePost", RouteCreate, &f)
 }
 
 func Migrate(c *context.Context) {
@@ -157,7 +157,7 @@ func Migrate(c *context.Context) {
 	}
 	c.Data["ContextUser"] = ctxUser
 
-	c.HTML(200, MIGRATE)
+	c.HTML(200, RouteMigrate)
 }
 
 func MigratePost(c *context.Context, f form.MigrateRepo) {
@@ -170,7 +170,7 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 	c.Data["ContextUser"] = ctxUser
 
 	if c.HasError() {
-		c.HTML(200, MIGRATE)
+		c.HTML(200, RouteMigrate)
 		return
 	}
 
@@ -181,11 +181,11 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 			addrErr := err.(models.ErrInvalidCloneAddr)
 			switch {
 			case addrErr.IsURLError:
-				c.RenderWithErr(c.Tr("form.url_error"), MIGRATE, &f)
+				c.RenderWithErr(c.Tr("form.url_error"), RouteMigrate, &f)
 			case addrErr.IsPermissionDenied:
-				c.RenderWithErr(c.Tr("repo.migrate.permission_denied"), MIGRATE, &f)
+				c.RenderWithErr(c.Tr("repo.migrate.permission_denied"), RouteMigrate, &f)
 			case addrErr.IsInvalidPath:
-				c.RenderWithErr(c.Tr("repo.migrate.invalid_local_path"), MIGRATE, &f)
+				c.RenderWithErr(c.Tr("repo.migrate.invalid_local_path"), RouteMigrate, &f)
 			default:
 				c.Handle(500, "Unknown error", err)
 			}
@@ -217,15 +217,15 @@ func MigratePost(c *context.Context, f form.MigrateRepo) {
 	if strings.Contains(err.Error(), "Authentication failed") ||
 		strings.Contains(err.Error(), "could not read Username") {
 		c.Data["Err_Auth"] = true
-		c.RenderWithErr(c.Tr("form.auth_failed", models.HandleMirrorCredentials(err.Error(), true)), MIGRATE, &f)
+		c.RenderWithErr(c.Tr("form.auth_failed", models.HandleMirrorCredentials(err.Error(), true)), RouteMigrate, &f)
 		return
 	} else if strings.Contains(err.Error(), "fatal:") {
 		c.Data["Err_CloneAddr"] = true
-		c.RenderWithErr(c.Tr("repo.migrate.failed", models.HandleMirrorCredentials(err.Error(), true)), MIGRATE, &f)
+		c.RenderWithErr(c.Tr("repo.migrate.failed", models.HandleMirrorCredentials(err.Error(), true)), RouteMigrate, &f)
 		return
 	}
 
-	handleCreateError(c, ctxUser, err, "MigratePost", MIGRATE, &f)
+	handleCreateError(c, ctxUser, err, "MigratePost", RouteMigrate, &f)
 }
 
 func Action(c *context.Context) {

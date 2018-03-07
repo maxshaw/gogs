@@ -13,28 +13,28 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	SETTINGS_OPTIONS          = "repo/settings/options"
-	SETTINGS_COLLABORATION    = "repo/settings/collaboration"
-	SETTINGS_BRANCHES         = "repo/settings/branches"
-	SETTINGS_PROTECTED_BRANCH = "repo/settings/protected_branch"
-	SETTINGS_GITHOOKS         = "repo/settings/githooks"
-	SETTINGS_GITHOOK_EDIT     = "repo/settings/githook_edit"
-	SETTINGS_DEPLOY_KEYS      = "repo/settings/deploy_keys"
+	RouteSettingsOptions         = "repo/settings/options"
+	RouteSettingsCollaboration   = "repo/settings/collaboration"
+	RouteSettingsBranches        = "repo/settings/branches"
+	RouteSettingsProtectedBranch = "repo/settings/protected_branch"
+	RouteSettingsGitHooks        = "repo/settings/githooks"
+	RouteSettingsGitHookEdit     = "repo/settings/githook_edit"
+	RouteSettingsDeployKeys      = "repo/settings/deploy_keys"
 )
 
 func Settings(c *context.Context) {
 	c.Title("repo.settings")
 	c.PageIs("SettingsOptions")
-	c.Success(SETTINGS_OPTIONS)
+	c.Success(RouteSettingsOptions)
 }
 
 func SettingsPost(c *context.Context, f form.RepoSetting) {
@@ -46,7 +46,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 	switch c.Query("action") {
 	case "update":
 		if c.HasError() {
-			c.Success(SETTINGS_OPTIONS)
+			c.Success(RouteSettingsOptions)
 			return
 		}
 
@@ -60,11 +60,11 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 				c.FormErr("RepoName")
 				switch {
 				case models.IsErrRepoAlreadyExist(err):
-					c.RenderWithErr(c.Tr("form.repo_name_been_taken"), SETTINGS_OPTIONS, &f)
+					c.RenderWithErr(c.Tr("form.repo_name_been_taken"), RouteSettingsOptions, &f)
 				case models.IsErrNameReserved(err):
-					c.RenderWithErr(c.Tr("repo.form.name_reserved", err.(models.ErrNameReserved).Name), SETTINGS_OPTIONS, &f)
+					c.RenderWithErr(c.Tr("repo.form.name_reserved", err.(models.ErrNameReserved).Name), RouteSettingsOptions, &f)
 				case models.IsErrNamePatternNotAllowed(err):
-					c.RenderWithErr(c.Tr("repo.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), SETTINGS_OPTIONS, &f)
+					c.RenderWithErr(c.Tr("repo.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), RouteSettingsOptions, &f)
 				default:
 					c.ServerError("ChangeRepositoryName", err)
 				}
@@ -165,7 +165,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			return
 		}
 		if repo.Name != f.RepoName {
-			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), SETTINGS_OPTIONS, nil)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), RouteSettingsOptions, nil)
 			return
 		}
 
@@ -199,7 +199,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			return
 		}
 		if repo.Name != f.RepoName {
-			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), SETTINGS_OPTIONS, nil)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), RouteSettingsOptions, nil)
 			return
 		}
 
@@ -216,13 +216,13 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			c.ServerError("IsUserExist", err)
 			return
 		} else if !isExist {
-			c.RenderWithErr(c.Tr("form.enterred_invalid_owner_name"), SETTINGS_OPTIONS, nil)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_owner_name"), RouteSettingsOptions, nil)
 			return
 		}
 
 		if err = models.TransferOwnership(c.User, newOwner, repo); err != nil {
 			if models.IsErrRepoAlreadyExist(err) {
-				c.RenderWithErr(c.Tr("repo.settings.new_owner_has_same_repo"), SETTINGS_OPTIONS, nil)
+				c.RenderWithErr(c.Tr("repo.settings.new_owner_has_same_repo"), RouteSettingsOptions, nil)
 			} else {
 				c.ServerError("TransferOwnership", err)
 			}
@@ -238,7 +238,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			return
 		}
 		if repo.Name != f.RepoName {
-			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), SETTINGS_OPTIONS, nil)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), RouteSettingsOptions, nil)
 			return
 		}
 
@@ -264,7 +264,7 @@ func SettingsPost(c *context.Context, f form.RepoSetting) {
 			return
 		}
 		if repo.Name != f.RepoName {
-			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), SETTINGS_OPTIONS, nil)
+			c.RenderWithErr(c.Tr("form.enterred_invalid_repo_name"), RouteSettingsOptions, nil)
 			return
 		}
 
@@ -303,7 +303,7 @@ func SettingsCollaboration(c *context.Context) {
 	}
 	c.Data["Collaborators"] = users
 
-	c.HTML(200, SETTINGS_COLLABORATION)
+	c.HTML(200, RouteSettingsCollaboration)
 }
 
 func SettingsCollaborationPost(c *context.Context) {
@@ -373,7 +373,7 @@ func SettingsBranches(c *context.Context) {
 
 	if c.Repo.Repository.IsBare {
 		c.Flash.Info(c.Tr("repo.settings.branches_bare"), true)
-		c.HTML(200, SETTINGS_BRANCHES)
+		c.HTML(200, RouteSettingsBranches)
 		return
 	}
 
@@ -392,7 +392,7 @@ func SettingsBranches(c *context.Context) {
 	}
 	c.Data["ProtectBranches"] = branches
 
-	c.HTML(200, SETTINGS_BRANCHES)
+	c.HTML(200, RouteSettingsBranches)
 }
 
 func UpdateDefaultBranch(c *context.Context) {
@@ -463,7 +463,7 @@ func SettingsProtectedBranch(c *context.Context) {
 	}
 
 	c.Data["Branch"] = protectBranch
-	c.HTML(200, SETTINGS_PROTECTED_BRANCH)
+	c.HTML(200, RouteSettingsProtectedBranch)
 }
 
 func SettingsProtectedBranchPost(c *context.Context, f form.ProtectBranch) {
@@ -515,7 +515,7 @@ func SettingsGitHooks(c *context.Context) {
 	}
 	c.Data["Hooks"] = hooks
 
-	c.HTML(200, SETTINGS_GITHOOKS)
+	c.HTML(200, RouteSettingsGitHooks)
 }
 
 func SettingsGitHooksEdit(c *context.Context) {
@@ -534,7 +534,7 @@ func SettingsGitHooksEdit(c *context.Context) {
 		return
 	}
 	c.Data["Hook"] = hook
-	c.HTML(200, SETTINGS_GITHOOK_EDIT)
+	c.HTML(200, RouteSettingsGitHookEdit)
 }
 
 func SettingsGitHooksEditPost(c *context.Context) {
@@ -567,7 +567,7 @@ func SettingsDeployKeys(c *context.Context) {
 	}
 	c.Data["Deploykeys"] = keys
 
-	c.HTML(200, SETTINGS_DEPLOY_KEYS)
+	c.HTML(200, RouteSettingsDeployKeys)
 }
 
 func SettingsDeployKeysPost(c *context.Context, f form.AddSSHKey) {
@@ -582,7 +582,7 @@ func SettingsDeployKeysPost(c *context.Context, f form.AddSSHKey) {
 	c.Data["Deploykeys"] = keys
 
 	if c.HasError() {
-		c.HTML(200, SETTINGS_DEPLOY_KEYS)
+		c.HTML(200, RouteSettingsDeployKeys)
 		return
 	}
 
@@ -605,10 +605,10 @@ func SettingsDeployKeysPost(c *context.Context, f form.AddSSHKey) {
 		switch {
 		case models.IsErrKeyAlreadyExist(err):
 			c.Data["Err_Content"] = true
-			c.RenderWithErr(c.Tr("repo.settings.key_been_used"), SETTINGS_DEPLOY_KEYS, &f)
+			c.RenderWithErr(c.Tr("repo.settings.key_been_used"), RouteSettingsDeployKeys, &f)
 		case models.IsErrKeyNameAlreadyUsed(err):
 			c.Data["Err_Title"] = true
-			c.RenderWithErr(c.Tr("repo.settings.key_name_used"), SETTINGS_DEPLOY_KEYS, &f)
+			c.RenderWithErr(c.Tr("repo.settings.key_name_used"), RouteSettingsDeployKeys, &f)
 		default:
 			c.Handle(500, "AddDeployKey", err)
 		}

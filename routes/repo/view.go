@@ -17,20 +17,20 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/markup"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/template"
-	"github.com/gogits/gogs/pkg/template/highlight"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/markup"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/template"
+	"github.com/maxshaw/gogs/pkg/template/highlight"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	BARE     = "repo/bare"
-	HOME     = "repo/home"
-	WATCHERS = "repo/watchers"
-	FORKS    = "repo/forks"
+	RouteBare     = "repo/bare"
+	RouteHome     = "repo/home"
+	RouteWatchers = "repo/watchers"
+	RouteForks    = "repo/forks"
 )
 
 func renderDirectory(c *context.Context, treeLink string) {
@@ -237,7 +237,7 @@ func Home(c *context.Context) {
 	c.Data["PageIsViewFiles"] = true
 
 	if c.Repo.Repository.IsBare {
-		c.HTML(200, BARE)
+		c.HTML(200, RouteBare)
 		return
 	}
 
@@ -311,7 +311,7 @@ func Home(c *context.Context) {
 	c.Data["TreeLink"] = treeLink
 	c.Data["TreeNames"] = treeNames
 	c.Data["BranchLink"] = branchLink
-	c.HTML(200, HOME)
+	c.HTML(200, RouteHome)
 }
 
 func RenderUserCards(c *context.Context, total int, getter func(page int) ([]*models.User, error), tpl string) {
@@ -336,14 +336,14 @@ func Watchers(c *context.Context) {
 	c.Data["Title"] = c.Tr("repo.watchers")
 	c.Data["CardsTitle"] = c.Tr("repo.watchers")
 	c.Data["PageIsWatchers"] = true
-	RenderUserCards(c, c.Repo.Repository.NumWatches, c.Repo.Repository.GetWatchers, WATCHERS)
+	RenderUserCards(c, c.Repo.Repository.NumWatches, c.Repo.Repository.GetWatchers, RouteWatchers)
 }
 
 func Stars(c *context.Context) {
 	c.Data["Title"] = c.Tr("repo.stargazers")
 	c.Data["CardsTitle"] = c.Tr("repo.stargazers")
 	c.Data["PageIsStargazers"] = true
-	RenderUserCards(c, c.Repo.Repository.NumStars, c.Repo.Repository.GetStargazers, WATCHERS)
+	RenderUserCards(c, c.Repo.Repository.NumStars, c.Repo.Repository.GetStargazers, RouteWatchers)
 }
 
 func Forks(c *context.Context) {
@@ -363,5 +363,5 @@ func Forks(c *context.Context) {
 	}
 	c.Data["Forks"] = forks
 
-	c.HTML(200, FORKS)
+	c.HTML(200, RouteForks)
 }

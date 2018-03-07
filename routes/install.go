@@ -19,22 +19,20 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/cron"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/markup"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/ssh"
-	"github.com/gogits/gogs/pkg/template/highlight"
-	"github.com/gogits/gogs/pkg/tool"
-	"github.com/gogits/gogs/pkg/user"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/cron"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/markup"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/ssh"
+	"github.com/maxshaw/gogs/pkg/template/highlight"
+	"github.com/maxshaw/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/pkg/user"
 )
 
-const (
-	INSTALL = "install"
-)
+const RouteInstall = "install"
 
 func checkRunMode() {
 	if setting.ProdMode {
@@ -165,7 +163,7 @@ func Install(c *context.Context) {
 	f.RequireSignInView = setting.Service.RequireSignInView
 
 	form.Assign(f, c.Data)
-	c.Success(INSTALL)
+	c.Success(RouteInstall)
 }
 
 func InstallPost(c *context.Context, f form.Install) {
@@ -181,12 +179,12 @@ func InstallPost(c *context.Context, f form.Install) {
 			c.FormErr("Admin")
 		}
 
-		c.Success(INSTALL)
+		c.Success(RouteInstall)
 		return
 	}
 
 	if _, err := exec.LookPath("git"); err != nil {
-		c.RenderWithErr(c.Tr("install.test_git_failed", err), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.test_git_failed", err), RouteInstall, &f)
 		return
 	}
 
@@ -203,7 +201,7 @@ func InstallPost(c *context.Context, f form.Install) {
 
 	if models.DbCfg.Type == "sqlite3" && len(models.DbCfg.Path) == 0 {
 		c.FormErr("DbPath")
-		c.RenderWithErr(c.Tr("install.err_empty_db_path"), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.err_empty_db_path"), RouteInstall, &f)
 		return
 	}
 
@@ -212,10 +210,10 @@ func InstallPost(c *context.Context, f form.Install) {
 	if err := models.NewTestEngine(x); err != nil {
 		if strings.Contains(err.Error(), `Unknown database type: sqlite3`) {
 			c.FormErr("DbType")
-			c.RenderWithErr(c.Tr("install.sqlite3_not_available", "https://gogs.io/docs/installation/install_from_binary.html"), INSTALL, &f)
+			c.RenderWithErr(c.Tr("install.sqlite3_not_available", "https://gogs.io/docs/installation/install_from_binary.html"), RouteInstall, &f)
 		} else {
 			c.FormErr("DbSetting")
-			c.RenderWithErr(c.Tr("install.invalid_db_setting", err), INSTALL, &f)
+			c.RenderWithErr(c.Tr("install.invalid_db_setting", err), RouteInstall, &f)
 		}
 		return
 	}
@@ -224,7 +222,7 @@ func InstallPost(c *context.Context, f form.Install) {
 	f.RepoRootPath = strings.Replace(f.RepoRootPath, "\\", "/", -1)
 	if err := os.MkdirAll(f.RepoRootPath, os.ModePerm); err != nil {
 		c.FormErr("RepoRootPath")
-		c.RenderWithErr(c.Tr("install.invalid_repo_path", err), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.invalid_repo_path", err), RouteInstall, &f)
 		return
 	}
 
@@ -232,21 +230,21 @@ func InstallPost(c *context.Context, f form.Install) {
 	f.LogRootPath = strings.Replace(f.LogRootPath, "\\", "/", -1)
 	if err := os.MkdirAll(f.LogRootPath, os.ModePerm); err != nil {
 		c.FormErr("LogRootPath")
-		c.RenderWithErr(c.Tr("install.invalid_log_root_path", err), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.invalid_log_root_path", err), RouteInstall, &f)
 		return
 	}
 
 	currentUser, match := setting.IsRunUserMatchCurrentUser(f.RunUser)
 	if !match {
 		c.FormErr("RunUser")
-		c.RenderWithErr(c.Tr("install.run_user_not_match", f.RunUser, currentUser), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.run_user_not_match", f.RunUser, currentUser), RouteInstall, &f)
 		return
 	}
 
 	// Check host address and port
 	if len(f.SMTPHost) > 0 && !strings.Contains(f.SMTPHost, ":") {
 		c.FormErr("SMTP", "SMTPHost")
-		c.RenderWithErr(c.Tr("install.smtp_host_missing_port"), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.smtp_host_missing_port"), RouteInstall, &f)
 		return
 	}
 
@@ -255,7 +253,7 @@ func InstallPost(c *context.Context, f form.Install) {
 		_, err := mail.ParseAddress(f.SMTPFrom)
 		if err != nil {
 			c.FormErr("SMTP", "SMTPFrom")
-			c.RenderWithErr(c.Tr("install.invalid_smtp_from", err), INSTALL, &f)
+			c.RenderWithErr(c.Tr("install.invalid_smtp_from", err), RouteInstall, &f)
 			return
 		}
 	}
@@ -263,19 +261,19 @@ func InstallPost(c *context.Context, f form.Install) {
 	// Check logic loophole between disable self-registration and no admin account.
 	if f.DisableRegistration && len(f.AdminName) == 0 {
 		c.FormErr("Services", "Admin")
-		c.RenderWithErr(c.Tr("install.no_admin_and_disable_registration"), INSTALL, f)
+		c.RenderWithErr(c.Tr("install.no_admin_and_disable_registration"), RouteInstall, f)
 		return
 	}
 
 	// Check admin password.
 	if len(f.AdminName) > 0 && len(f.AdminPasswd) == 0 {
 		c.FormErr("Admin", "AdminPasswd")
-		c.RenderWithErr(c.Tr("install.err_empty_admin_password"), INSTALL, f)
+		c.RenderWithErr(c.Tr("install.err_empty_admin_password"), RouteInstall, f)
 		return
 	}
 	if f.AdminPasswd != f.AdminConfirmPasswd {
 		c.FormErr("Admin", "AdminPasswd")
-		c.RenderWithErr(c.Tr("form.password_not_match"), INSTALL, f)
+		c.RenderWithErr(c.Tr("form.password_not_match"), RouteInstall, f)
 		return
 	}
 
@@ -348,14 +346,14 @@ func InstallPost(c *context.Context, f form.Install) {
 	cfg.Section("security").Key("INSTALL_LOCK").SetValue("true")
 	secretKey, err := tool.RandomString(15)
 	if err != nil {
-		c.RenderWithErr(c.Tr("install.secret_key_failed", err), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.secret_key_failed", err), RouteInstall, &f)
 		return
 	}
 	cfg.Section("security").Key("SECRET_KEY").SetValue(secretKey)
 
 	os.MkdirAll(filepath.Dir(setting.CustomConf), os.ModePerm)
 	if err := cfg.SaveTo(setting.CustomConf); err != nil {
-		c.RenderWithErr(c.Tr("install.save_config_failed", err), INSTALL, &f)
+		c.RenderWithErr(c.Tr("install.save_config_failed", err), RouteInstall, &f)
 		return
 	}
 
@@ -374,7 +372,7 @@ func InstallPost(c *context.Context, f form.Install) {
 			if !models.IsErrUserAlreadyExist(err) {
 				setting.InstallLock = false
 				c.FormErr("AdminName", "AdminEmail")
-				c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), INSTALL, &f)
+				c.RenderWithErr(c.Tr("install.invalid_admin_setting", err), RouteInstall, &f)
 				return
 			}
 			log.Info("Admin account already exist")

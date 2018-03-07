@@ -5,9 +5,9 @@
 package dev
 
 import (
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 func TemplatePreview(c *context.Context) {
@@ -20,5 +20,5 @@ func TemplatePreview(c *context.Context) {
 	c.Data["ResetPwdCodeLives"] = setting.Service.ResetPwdCodeLives / 60
 	c.Data["CurDbValue"] = ""
 
-	c.HTML(200, (c.Params("*")))
+	c.HTML(200, c.Params("*"))
 }

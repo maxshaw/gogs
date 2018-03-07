@@ -7,9 +7,9 @@ package admin
 import (
 	api "github.com/gogits/go-gogs-client"
 
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/routes/api/v1/user"
-	"github.com/gogits/gogs/routes/api/v1/org"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/routes/api/v1/org"
+	"github.com/maxshaw/gogs/routes/api/v1/user"
 )
 
 // https://github.com/gogits/go-gogs-client/wiki/Administration-Organizations#create-a-new-organization

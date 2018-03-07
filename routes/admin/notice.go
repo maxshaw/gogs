@@ -9,14 +9,12 @@ import (
 	"github.com/Unknwon/paginater"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
-const (
-	NOTICES = "admin/notice"
-)
+const RouteNotice = "admin/notice"
 
 func Notices(c *context.Context) {
 	c.Data["Title"] = c.Tr("admin.notices")
@@ -38,7 +36,7 @@ func Notices(c *context.Context) {
 	c.Data["Notices"] = notices
 
 	c.Data["Total"] = total
-	c.HTML(200, NOTICES)
+	c.HTML(200, RouteNotice)
 }
 
 func DeleteNotices(c *context.Context) {

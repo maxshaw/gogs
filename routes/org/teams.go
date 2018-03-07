@@ -10,17 +10,17 @@ import (
 	"github.com/Unknwon/com"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
 )
 
 const (
-	TEAMS             = "org/team/teams"
-	TEAM_NEW          = "org/team/new"
-	TEAM_MEMBERS      = "org/team/members"
-	TEAM_REPOSITORIES = "org/team/repositories"
+	RouteTeams       = "org/team/teams"
+	RouteTeamNew     = "org/team/new"
+	RouteTeamMembers = "org/team/members"
+	RouteTeamRepos   = "org/team/repositories"
 )
 
 func Teams(c *context.Context) {
@@ -36,7 +36,7 @@ func Teams(c *context.Context) {
 	}
 	c.Data["Teams"] = org.Teams
 
-	c.HTML(200, TEAMS)
+	c.HTML(200, RouteTeams)
 }
 
 func TeamsAction(c *context.Context) {
@@ -146,7 +146,7 @@ func NewTeam(c *context.Context) {
 	c.Data["PageIsOrgTeams"] = true
 	c.Data["PageIsOrgTeamsNew"] = true
 	c.Data["Team"] = &models.Team{}
-	c.HTML(200, TEAM_NEW)
+	c.HTML(200, RouteTeamNew)
 }
 
 func NewTeamPost(c *context.Context, f form.CreateTeam) {
@@ -163,7 +163,7 @@ func NewTeamPost(c *context.Context, f form.CreateTeam) {
 	c.Data["Team"] = t
 
 	if c.HasError() {
-		c.HTML(200, TEAM_NEW)
+		c.HTML(200, RouteTeamNew)
 		return
 	}
 
@@ -171,9 +171,9 @@ func NewTeamPost(c *context.Context, f form.CreateTeam) {
 		c.Data["Err_TeamName"] = true
 		switch {
 		case models.IsErrTeamAlreadyExist(err):
-			c.RenderWithErr(c.Tr("form.team_name_been_taken"), TEAM_NEW, &f)
+			c.RenderWithErr(c.Tr("form.team_name_been_taken"), RouteTeamNew, &f)
 		case models.IsErrNameReserved(err):
-			c.RenderWithErr(c.Tr("org.form.team_name_reserved", err.(models.ErrNameReserved).Name), TEAM_NEW, &f)
+			c.RenderWithErr(c.Tr("org.form.team_name_reserved", err.(models.ErrNameReserved).Name), RouteTeamNew, &f)
 		default:
 			c.Handle(500, "NewTeam", err)
 		}
@@ -190,7 +190,7 @@ func TeamMembers(c *context.Context) {
 		c.Handle(500, "GetMembers", err)
 		return
 	}
-	c.HTML(200, TEAM_MEMBERS)
+	c.HTML(200, RouteTeamMembers)
 }
 
 func TeamRepositories(c *context.Context) {
@@ -200,7 +200,7 @@ func TeamRepositories(c *context.Context) {
 		c.Handle(500, "GetRepositories", err)
 		return
 	}
-	c.HTML(200, TEAM_REPOSITORIES)
+	c.HTML(200, RouteTeamRepos)
 }
 
 func EditTeam(c *context.Context) {
@@ -208,7 +208,7 @@ func EditTeam(c *context.Context) {
 	c.Data["PageIsOrgTeams"] = true
 	c.Data["team_name"] = c.Org.Team.Name
 	c.Data["desc"] = c.Org.Team.Description
-	c.HTML(200, TEAM_NEW)
+	c.HTML(200, RouteTeamNew)
 }
 
 func EditTeamPost(c *context.Context, f form.CreateTeam) {
@@ -218,7 +218,7 @@ func EditTeamPost(c *context.Context, f form.CreateTeam) {
 	c.Data["Team"] = t
 
 	if c.HasError() {
-		c.HTML(200, TEAM_NEW)
+		c.HTML(200, RouteTeamNew)
 		return
 	}
 
@@ -249,7 +249,7 @@ func EditTeamPost(c *context.Context, f form.CreateTeam) {
 		c.Data["Err_TeamName"] = true
 		switch {
 		case models.IsErrTeamAlreadyExist(err):
-			c.RenderWithErr(c.Tr("form.team_name_been_taken"), TEAM_NEW, &f)
+			c.RenderWithErr(c.Tr("form.team_name_been_taken"), RouteTeamNew, &f)
 		default:
 			c.Handle(500, "UpdateTeam", err)
 		}

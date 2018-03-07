@@ -5,15 +5,13 @@
 package admin
 
 import (
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/routes"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/routes"
 )
 
-const (
-	ORGS = "admin/org/list"
-)
+const RouteOrganizations = "admin/org/list"
 
 func Organizations(c *context.Context) {
 	c.Data["Title"] = c.Tr("admin.organizations")
@@ -26,6 +24,6 @@ func Organizations(c *context.Context) {
 		Ranger:   models.Organizations,
 		PageSize: setting.UI.Admin.OrgPagingNum,
 		OrderBy:  "id ASC",
-		TplName:  ORGS,
+		TplName:  RouteOrganizations,
 	})
 }

@@ -21,22 +21,22 @@ import (
 	log "gopkg.in/clog.v1"
 	"gopkg.in/macaron.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	ENV_AUTH_USER_ID           = "GOGS_AUTH_USER_ID"
-	ENV_AUTH_USER_NAME         = "GOGS_AUTH_USER_NAME"
-	ENV_AUTH_USER_EMAIL        = "GOGS_AUTH_USER_EMAIL"
-	ENV_REPO_OWNER_NAME        = "GOGS_REPO_OWNER_NAME"
-	ENV_REPO_OWNER_SALT_MD5    = "GOGS_REPO_OWNER_SALT_MD5"
-	ENV_REPO_ID                = "GOGS_REPO_ID"
-	ENV_REPO_NAME              = "GOGS_REPO_NAME"
-	ENV_REPO_CUSTOM_HOOKS_PATH = "GOGS_REPO_CUSTOM_HOOKS_PATH"
+	RouteEnvAuthUserId          = "GOGS_AUTH_USER_ID"
+	RouteEnvAuthUserName        = "GOGS_AUTH_USER_NAME"
+	RouteEnvAuthUserEmail       = "GOGS_AUTH_USER_EMAIL"
+	RouteEnvRepoOwnerName       = "GOGS_REPO_OWNER_NAME"
+	RouteEnvRepoOwnerSaltMd5    = "GOGS_REPO_OWNER_SALT_MD5"
+	RouteEnvRepoId              = "GOGS_REPO_ID"
+	RouteEnvRepoName            = "GOGS_REPO_NAME"
+	RouteEnvRepoCustomHooksPath = "GOGS_REPO_CUSTOM_HOOKS_PATH"
 )
 
 type HTTPContext struct {
@@ -228,14 +228,14 @@ type ComposeHookEnvsOptions struct {
 func ComposeHookEnvs(opts ComposeHookEnvsOptions) []string {
 	envs := []string{
 		"SSH_ORIGINAL_COMMAND=1",
-		ENV_AUTH_USER_ID + "=" + com.ToStr(opts.AuthUser.ID),
-		ENV_AUTH_USER_NAME + "=" + opts.AuthUser.Name,
-		ENV_AUTH_USER_EMAIL + "=" + opts.AuthUser.Email,
-		ENV_REPO_OWNER_NAME + "=" + opts.OwnerName,
-		ENV_REPO_OWNER_SALT_MD5 + "=" + tool.MD5(opts.OwnerSalt),
-		ENV_REPO_ID + "=" + com.ToStr(opts.RepoID),
-		ENV_REPO_NAME + "=" + opts.RepoName,
-		ENV_REPO_CUSTOM_HOOKS_PATH + "=" + path.Join(opts.RepoPath, "custom_hooks"),
+		RouteEnvAuthUserId + "=" + com.ToStr(opts.AuthUser.ID),
+		RouteEnvAuthUserName + "=" + opts.AuthUser.Name,
+		RouteEnvAuthUserEmail + "=" + opts.AuthUser.Email,
+		RouteEnvRepoOwnerName + "=" + opts.OwnerName,
+		RouteEnvRepoOwnerSaltMd5 + "=" + tool.MD5(opts.OwnerSalt),
+		RouteEnvRepoId + "=" + com.ToStr(opts.RepoID),
+		RouteEnvRepoName + "=" + opts.RepoName,
+		RouteEnvRepoCustomHooksPath + "=" + path.Join(opts.RepoPath, "custom_hooks"),
 	}
 	return envs
 }
@@ -373,17 +373,17 @@ var routes = []struct {
 	method  string
 	handler func(serviceHandler)
 }{
-	{regexp.MustCompile("(.*?)/git-upload-pack$"), "POST", serviceUploadPack},
-	{regexp.MustCompile("(.*?)/git-receive-pack$"), "POST", serviceReceivePack},
-	{regexp.MustCompile("(.*?)/info/refs$"), "GET", getInfoRefs},
-	{regexp.MustCompile("(.*?)/HEAD$"), "GET", getTextFile},
-	{regexp.MustCompile("(.*?)/objects/info/alternates$"), "GET", getTextFile},
-	{regexp.MustCompile("(.*?)/objects/info/http-alternates$"), "GET", getTextFile},
-	{regexp.MustCompile("(.*?)/objects/info/packs$"), "GET", getInfoPacks},
-	{regexp.MustCompile("(.*?)/objects/info/[^/]*$"), "GET", getTextFile},
-	{regexp.MustCompile("(.*?)/objects/[0-9a-f]{2}/[0-9a-f]{38}$"), "GET", getLooseObject},
-	{regexp.MustCompile("(.*?)/objects/pack/pack-[0-9a-f]{40}\\.pack$"), "GET", getPackFile},
-	{regexp.MustCompile("(.*?)/objects/pack/pack-[0-9a-f]{40}\\.idx$"), "GET", getIdxFile},
+	{regexp.MustCompile("(.*?)/git-upload-pack$"), http.MethodPost, serviceUploadPack},
+	{regexp.MustCompile("(.*?)/git-receive-pack$"), http.MethodPost, serviceReceivePack},
+	{regexp.MustCompile("(.*?)/info/refs$"), http.MethodGet, getInfoRefs},
+	{regexp.MustCompile("(.*?)/HEAD$"), http.MethodGet, getTextFile},
+	{regexp.MustCompile("(.*?)/objects/info/alternates$"), http.MethodGet, getTextFile},
+	{regexp.MustCompile("(.*?)/objects/info/http-alternates$"), http.MethodGet, getTextFile},
+	{regexp.MustCompile("(.*?)/objects/info/packs$"), http.MethodGet, getInfoPacks},
+	{regexp.MustCompile("(.*?)/objects/info/[^/]*$"), http.MethodGet, getTextFile},
+	{regexp.MustCompile("(.*?)/objects/[0-9a-f]{2}/[0-9a-f]{38}$"), http.MethodGet, getLooseObject},
+	{regexp.MustCompile("(.*?)/objects/pack/pack-[0-9a-f]{40}\\.pack$"), http.MethodGet, getPackFile},
+	{regexp.MustCompile("(.*?)/objects/pack/pack-[0-9a-f]{40}\\.idx$"), http.MethodGet, getIdxFile},
 }
 
 func getGitRepoPath(dir string) (string, error) {

@@ -11,13 +11,13 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
 )
 
 const (
-	BRANCHES_OVERVIEW = "repo/branches/overview"
-	BRANCHES_ALL      = "repo/branches/all"
+	RouteBranchesOverview = "repo/branches/overview"
+	RouteBranchesAll      = "repo/branches/all"
 )
 
 type Branch struct {
@@ -89,7 +89,7 @@ func Branches(c *context.Context) {
 
 	c.Data["ActiveBranches"] = activeBranches
 	c.Data["StaleBranches"] = staleBranches
-	c.HTML(200, BRANCHES_OVERVIEW)
+	c.HTML(200, RouteBranchesOverview)
 }
 
 func AllBranches(c *context.Context) {
@@ -102,7 +102,7 @@ func AllBranches(c *context.Context) {
 	}
 	c.Data["Branches"] = branches
 
-	c.HTML(200, BRANCHES_ALL)
+	c.HTML(200, RouteBranchesAll)
 }
 
 func DeleteBranchPost(c *context.Context) {

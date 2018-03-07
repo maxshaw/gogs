@@ -27,9 +27,9 @@ import (
 
 	"github.com/gogits/go-libravatar"
 
-	"github.com/gogits/gogs/pkg/bindata"
-	"github.com/gogits/gogs/pkg/process"
-	"github.com/gogits/gogs/pkg/user"
+	"github.com/maxshaw/gogs/pkg/bindata"
+	"github.com/maxshaw/gogs/pkg/process"
+	"github.com/maxshaw/gogs/pkg/user"
 )
 
 type Scheme string
@@ -206,6 +206,7 @@ var (
 
 	// Time settings
 	TimeFormat string
+	TimeZone   string
 
 	// Cache settings
 	CacheAdapter  string
@@ -388,7 +389,7 @@ func getOpenSSHVersion() string {
 		log.Fatal(2, "Fail to get OpenSSH version: %v - %s", err, stderr)
 	}
 
-	// Trim unused information: https://github.com/gogits/gogs/issues/4507#issuecomment-305150441
+	// Trim unused information: https://gogs/issues/4507#issuecomment-305150441
 	version := strings.TrimRight(strings.Fields(stderr)[0], ",1234567890")
 	version = strings.TrimSuffix(strings.TrimPrefix(version, "OpenSSH_"), "p")
 	return version
@@ -505,7 +506,7 @@ func NewContext() {
 	}
 
 	// Check if server is eligible for minimum key size check when user choose to enable.
-	// Windows server and OpenSSH version lower than 5.1 (https://github.com/gogits/gogs/issues/4507)
+	// Windows server and OpenSSH version lower than 5.1 (https://gogs/issues/4507)
 	// are forced to be disabled because the "ssh-keygen" in Windows does not print key type.
 	if SSH.MinimumKeySizeCheck &&
 		(IsWindows || version.Compare(getOpenSSHVersion(), "5.1", "<")) {
@@ -562,6 +563,8 @@ func NewContext() {
 		"StampMicro":  time.StampMicro,
 		"StampNano":   time.StampNano,
 	}[Cfg.Section("time").Key("FORMAT").MustString("RFC1123")]
+
+	TimeZone = Cfg.Section("timezone").Key("TIMEZONE").MustString("Asia/Shanghai")
 
 	RunUser = Cfg.Section("").Key("RUN_USER").String()
 	// Does not check run user when the install lock is off.

@@ -11,22 +11,22 @@ import (
 	"github.com/go-macaron/captcha"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	LOGIN                    = "user/auth/login"
-	TWO_FACTOR               = "user/auth/two_factor"
-	TWO_FACTOR_RECOVERY_CODE = "user/auth/two_factor_recovery_code"
-	SIGNUP                   = "user/auth/signup"
-	ACTIVATE                 = "user/auth/activate"
-	FORGOT_PASSWORD          = "user/auth/forgot_passwd"
-	RESET_PASSWORD           = "user/auth/reset_passwd"
+	RouteLogin                 = "user/auth/login"
+	RouteTwoFactor             = "user/auth/two_factor"
+	RouteTwoFactorRecoveryCode = "user/auth/two_factor_recovery_code"
+	RouteSignUp                = "user/auth/signup"
+	RouteActivate              = "user/auth/activate"
+	RouteForgotPassword        = "user/auth/forgot_passwd"
+	RouteResetPassword         = "user/auth/reset_passwd"
 )
 
 // AutoLogin reads cookie and try to auto-login.
@@ -106,7 +106,7 @@ func Login(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, LOGIN)
+	c.HTML(200, RouteLogin)
 }
 
 func afterLogin(c *context.Context, u *models.User, remember bool) {
@@ -141,14 +141,14 @@ func LoginPost(c *context.Context, f form.SignIn) {
 	c.Data["Title"] = c.Tr("sign_in")
 
 	if c.HasError() {
-		c.Success(LOGIN)
+		c.Success(RouteLogin)
 		return
 	}
 
 	u, err := models.UserSignIn(f.UserName, f.Password)
 	if err != nil {
 		if errors.IsUserNotExist(err) {
-			c.RenderWithErr(c.Tr("form.username_password_incorrect"), LOGIN, &f)
+			c.RenderWithErr(c.Tr("form.username_password_incorrect"), RouteLogin, &f)
 		} else {
 			c.ServerError("UserSignIn", err)
 		}
@@ -172,7 +172,7 @@ func LoginTwoFactor(c *context.Context) {
 		return
 	}
 
-	c.Success(TWO_FACTOR)
+	c.Success(RouteTwoFactor)
 }
 
 func LoginTwoFactorPost(c *context.Context) {
@@ -212,7 +212,7 @@ func LoginTwoFactorRecoveryCode(c *context.Context) {
 		return
 	}
 
-	c.Success(TWO_FACTOR_RECOVERY_CODE)
+	c.Success(RouteTwoFactorRecoveryCode)
 }
 
 func LoginTwoFactorRecoveryCodePost(c *context.Context) {
@@ -256,11 +256,11 @@ func SignUp(c *context.Context) {
 
 	if setting.Service.DisableRegistration {
 		c.Data["DisableRegistration"] = true
-		c.HTML(200, SIGNUP)
+		c.HTML(200, RouteSignUp)
 		return
 	}
 
-	c.HTML(200, SIGNUP)
+	c.HTML(200, RouteSignUp)
 }
 
 func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
@@ -274,19 +274,19 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 	}
 
 	if c.HasError() {
-		c.HTML(200, SIGNUP)
+		c.HTML(200, RouteSignUp)
 		return
 	}
 
 	if setting.Service.EnableCaptcha && !cpt.VerifyReq(c.Req) {
 		c.Data["Err_Captcha"] = true
-		c.RenderWithErr(c.Tr("form.captcha_incorrect"), SIGNUP, &f)
+		c.RenderWithErr(c.Tr("form.captcha_incorrect"), RouteSignUp, &f)
 		return
 	}
 
 	if f.Password != f.Retype {
 		c.Data["Err_Password"] = true
-		c.RenderWithErr(c.Tr("form.password_not_match"), SIGNUP, &f)
+		c.RenderWithErr(c.Tr("form.password_not_match"), RouteSignUp, &f)
 		return
 	}
 
@@ -300,16 +300,16 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		switch {
 		case models.IsErrUserAlreadyExist(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("form.username_been_taken"), SIGNUP, &f)
+			c.RenderWithErr(c.Tr("form.username_been_taken"), RouteSignUp, &f)
 		case models.IsErrEmailAlreadyUsed(err):
 			c.Data["Err_Email"] = true
-			c.RenderWithErr(c.Tr("form.email_been_used"), SIGNUP, &f)
+			c.RenderWithErr(c.Tr("form.email_been_used"), RouteSignUp, &f)
 		case models.IsErrNameReserved(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("user.form.name_reserved", err.(models.ErrNameReserved).Name), SIGNUP, &f)
+			c.RenderWithErr(c.Tr("user.form.name_reserved", err.(models.ErrNameReserved).Name), RouteSignUp, &f)
 		case models.IsErrNamePatternNotAllowed(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), SIGNUP, &f)
+			c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), RouteSignUp, &f)
 		default:
 			c.Handle(500, "CreateUser", err)
 		}
@@ -333,7 +333,7 @@ func SignUpPost(c *context.Context, cpt *captcha.Captcha, f form.Register) {
 		c.Data["IsSendRegisterMail"] = true
 		c.Data["Email"] = u.Email
 		c.Data["Hours"] = setting.Service.ActiveCodeLives / 60
-		c.HTML(200, ACTIVATE)
+		c.HTML(200, RouteActivate)
 
 		if err := c.Cache.Put("MailResendLimit_"+u.LowerName, u.LowerName, 180); err != nil {
 			log.Error(4, "Set cache(MailResendLimit) fail: %v", err)
@@ -368,7 +368,7 @@ func Activate(c *context.Context) {
 		} else {
 			c.Data["ServiceNotEnabled"] = true
 		}
-		c.HTML(200, ACTIVATE)
+		c.HTML(200, RouteActivate)
 		return
 	}
 
@@ -394,7 +394,7 @@ func Activate(c *context.Context) {
 	}
 
 	c.Data["IsActivateFailed"] = true
-	c.HTML(200, ACTIVATE)
+	c.HTML(200, RouteActivate)
 }
 
 func ActivateEmail(c *context.Context) {
@@ -420,12 +420,12 @@ func ForgotPasswd(c *context.Context) {
 
 	if setting.MailService == nil {
 		c.Data["IsResetDisable"] = true
-		c.HTML(200, FORGOT_PASSWORD)
+		c.HTML(200, RouteForgotPassword)
 		return
 	}
 
 	c.Data["IsResetRequest"] = true
-	c.HTML(200, FORGOT_PASSWORD)
+	c.HTML(200, RouteForgotPassword)
 }
 
 func ForgotPasswdPost(c *context.Context) {
@@ -445,7 +445,7 @@ func ForgotPasswdPost(c *context.Context) {
 		if errors.IsUserNotExist(err) {
 			c.Data["Hours"] = setting.Service.ActiveCodeLives / 60
 			c.Data["IsResetSent"] = true
-			c.HTML(200, FORGOT_PASSWORD)
+			c.HTML(200, RouteForgotPassword)
 			return
 		} else {
 			c.Handle(500, "user.ResetPasswd(check existence)", err)
@@ -455,13 +455,13 @@ func ForgotPasswdPost(c *context.Context) {
 
 	if !u.IsLocal() {
 		c.Data["Err_Email"] = true
-		c.RenderWithErr(c.Tr("auth.non_local_account"), FORGOT_PASSWORD, nil)
+		c.RenderWithErr(c.Tr("auth.non_local_account"), RouteForgotPassword, nil)
 		return
 	}
 
 	if c.Cache.IsExist("MailResendLimit_" + u.LowerName) {
 		c.Data["ResendLimited"] = true
-		c.HTML(200, FORGOT_PASSWORD)
+		c.HTML(200, RouteForgotPassword)
 		return
 	}
 
@@ -472,7 +472,7 @@ func ForgotPasswdPost(c *context.Context) {
 
 	c.Data["Hours"] = setting.Service.ActiveCodeLives / 60
 	c.Data["IsResetSent"] = true
-	c.HTML(200, FORGOT_PASSWORD)
+	c.HTML(200, RouteForgotPassword)
 }
 
 func ResetPasswd(c *context.Context) {
@@ -485,7 +485,7 @@ func ResetPasswd(c *context.Context) {
 	}
 	c.Data["Code"] = code
 	c.Data["IsResetForm"] = true
-	c.HTML(200, RESET_PASSWORD)
+	c.HTML(200, RouteResetPassword)
 }
 
 func ResetPasswdPost(c *context.Context) {
@@ -504,7 +504,7 @@ func ResetPasswdPost(c *context.Context) {
 		if len(passwd) < 6 {
 			c.Data["IsResetForm"] = true
 			c.Data["Err_Password"] = true
-			c.RenderWithErr(c.Tr("auth.password_too_short"), RESET_PASSWORD, nil)
+			c.RenderWithErr(c.Tr("auth.password_too_short"), RouteResetPassword, nil)
 			return
 		}
 
@@ -530,5 +530,5 @@ func ResetPasswdPost(c *context.Context) {
 	}
 
 	c.Data["IsResetFailed"] = true
-	c.HTML(200, RESET_PASSWORD)
+	c.HTML(200, RouteResetPassword)
 }

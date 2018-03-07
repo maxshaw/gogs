@@ -7,10 +7,10 @@ package org
 import (
 	api "github.com/gogits/go-gogs-client"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/routes/api/v1/convert"
-	"github.com/gogits/gogs/routes/api/v1/user"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/routes/api/v1/convert"
+	"github.com/maxshaw/gogs/routes/api/v1/user"
 )
 
 func CreateOrgForUser(c *context.APIContext, apiForm api.CreateOrgOption, user *models.User) {

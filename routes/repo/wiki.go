@@ -11,17 +11,17 @@ import (
 
 	"github.com/gogits/git-module"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/markup"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/markup"
 )
 
 const (
-	WIKI_START = "repo/wiki/start"
-	WIKI_VIEW  = "repo/wiki/view"
-	WIKI_NEW   = "repo/wiki/new"
-	WIKI_PAGES = "repo/wiki/pages"
+	RouteWikiStart = "repo/wiki/start"
+	RouteWikiView  = "repo/wiki/view"
+	RouteWikiNew   = "repo/wiki/new"
+	RouteWikiPages = "repo/wiki/pages"
 )
 
 func MustEnableWiki(c *context.Context) {
@@ -119,7 +119,7 @@ func Wiki(c *context.Context) {
 
 	if !c.Repo.Repository.HasWiki() {
 		c.Data["Title"] = c.Tr("repo.wiki")
-		c.HTML(200, WIKI_START)
+		c.HTML(200, RouteWikiStart)
 		return
 	}
 
@@ -136,7 +136,7 @@ func Wiki(c *context.Context) {
 	}
 	c.Data["Author"] = lastCommit.Author
 
-	c.HTML(200, WIKI_VIEW)
+	c.HTML(200, RouteWikiView)
 }
 
 func WikiPages(c *context.Context) {
@@ -182,7 +182,7 @@ func WikiPages(c *context.Context) {
 	}
 	c.Data["Pages"] = pages
 
-	c.HTML(200, WIKI_PAGES)
+	c.HTML(200, RouteWikiPages)
 }
 
 func NewWiki(c *context.Context) {
@@ -194,7 +194,7 @@ func NewWiki(c *context.Context) {
 		c.Data["title"] = "Home"
 	}
 
-	c.HTML(200, WIKI_NEW)
+	c.HTML(200, RouteWikiNew)
 }
 
 func NewWikiPost(c *context.Context, f form.NewWiki) {
@@ -203,14 +203,14 @@ func NewWikiPost(c *context.Context, f form.NewWiki) {
 	c.Data["RequireSimpleMDE"] = true
 
 	if c.HasError() {
-		c.HTML(200, WIKI_NEW)
+		c.HTML(200, RouteWikiNew)
 		return
 	}
 
 	if err := c.Repo.Repository.AddWikiPage(c.User, f.Title, f.Content, f.Message); err != nil {
 		if models.IsErrWikiAlreadyExist(err) {
 			c.Data["Err_Title"] = true
-			c.RenderWithErr(c.Tr("repo.wiki.page_already_exists"), WIKI_NEW, &f)
+			c.RenderWithErr(c.Tr("repo.wiki.page_already_exists"), RouteWikiNew, &f)
 		} else {
 			c.Handle(500, "AddWikiPage", err)
 		}
@@ -235,7 +235,7 @@ func EditWiki(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, WIKI_NEW)
+	c.HTML(200, RouteWikiNew)
 }
 
 func EditWikiPost(c *context.Context, f form.NewWiki) {
@@ -244,7 +244,7 @@ func EditWikiPost(c *context.Context, f form.NewWiki) {
 	c.Data["RequireSimpleMDE"] = true
 
 	if c.HasError() {
-		c.HTML(200, WIKI_NEW)
+		c.HTML(200, RouteWikiNew)
 		return
 	}
 

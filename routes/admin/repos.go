@@ -8,14 +8,12 @@ import (
 	"github.com/Unknwon/paginater"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
-const (
-	REPOS = "admin/repo/list"
-)
+const RouteRepos = "admin/repo/list"
 
 func Repos(c *context.Context) {
 	c.Data["Title"] = c.Tr("admin.repositories")
@@ -64,7 +62,7 @@ func Repos(c *context.Context) {
 	}
 	c.Data["Repos"] = repos
 
-	c.HTML(200, REPOS)
+	c.HTML(200, RouteRepos)
 }
 
 func DeleteRepo(c *context.Context) {

@@ -24,7 +24,7 @@ import (
 
 	"github.com/gogits/chardet"
 
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 // MD5Bytes encodes string to MD5 bytes.
@@ -352,6 +352,10 @@ func RawTimeSince(t time.Time, lang string) string {
 
 // TimeSince calculates the time interval and generate user-friendly string.
 func TimeSince(t time.Time, lang string) template.HTML {
+	loc, err := time.LoadLocation(setting.TimeZone)
+	if err == nil {
+		t = t.In(loc)
+	}
 	return template.HTML(fmt.Sprintf(`<span class="time-since" title="%s">%s</span>`, t.Format(setting.TimeFormat), timeSince(t, lang)))
 }
 

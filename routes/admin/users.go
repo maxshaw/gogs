@@ -10,18 +10,18 @@ import (
 	"github.com/Unknwon/com"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/routes"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/routes"
 )
 
 const (
-	USERS     = "admin/user/list"
-	USER_NEW  = "admin/user/new"
-	USER_EDIT = "admin/user/edit"
+	RouteUserList = "admin/user/list"
+	RouteUserNew  = "admin/user/new"
+	RouteUserEdit = "admin/user/edit"
 )
 
 func Users(c *context.Context) {
@@ -35,7 +35,7 @@ func Users(c *context.Context) {
 		Ranger:   models.Users,
 		PageSize: setting.UI.Admin.UserPagingNum,
 		OrderBy:  "id ASC",
-		TplName:  USERS,
+		TplName:  RouteUserList,
 	})
 }
 
@@ -54,7 +54,7 @@ func NewUser(c *context.Context) {
 	c.Data["Sources"] = sources
 
 	c.Data["CanSendEmail"] = setting.MailService != nil
-	c.HTML(200, USER_NEW)
+	c.HTML(200, RouteUserNew)
 }
 
 func NewUserPost(c *context.Context, f form.AdminCrateUser) {
@@ -72,7 +72,7 @@ func NewUserPost(c *context.Context, f form.AdminCrateUser) {
 	c.Data["CanSendEmail"] = setting.MailService != nil
 
 	if c.HasError() {
-		c.HTML(200, USER_NEW)
+		c.HTML(200, RouteUserNew)
 		return
 	}
 
@@ -97,16 +97,16 @@ func NewUserPost(c *context.Context, f form.AdminCrateUser) {
 		switch {
 		case models.IsErrUserAlreadyExist(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("form.username_been_taken"), USER_NEW, &f)
+			c.RenderWithErr(c.Tr("form.username_been_taken"), RouteUserNew, &f)
 		case models.IsErrEmailAlreadyUsed(err):
 			c.Data["Err_Email"] = true
-			c.RenderWithErr(c.Tr("form.email_been_used"), USER_NEW, &f)
+			c.RenderWithErr(c.Tr("form.email_been_used"), RouteUserNew, &f)
 		case models.IsErrNameReserved(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("user.form.name_reserved", err.(models.ErrNameReserved).Name), USER_NEW, &f)
+			c.RenderWithErr(c.Tr("user.form.name_reserved", err.(models.ErrNameReserved).Name), RouteUserNew, &f)
 		case models.IsErrNamePatternNotAllowed(err):
 			c.Data["Err_UserName"] = true
-			c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), USER_NEW, &f)
+			c.RenderWithErr(c.Tr("user.form.name_pattern_not_allowed", err.(models.ErrNamePatternNotAllowed).Pattern), RouteUserNew, &f)
 		default:
 			c.Handle(500, "CreateUser", err)
 		}
@@ -162,7 +162,7 @@ func EditUser(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, USER_EDIT)
+	c.HTML(200, RouteUserEdit)
 }
 
 func EditUserPost(c *context.Context, f form.AdminEditUser) {
@@ -177,7 +177,7 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 	}
 
 	if c.HasError() {
-		c.HTML(200, USER_EDIT)
+		c.HTML(200, RouteUserEdit)
 		return
 	}
 
@@ -217,7 +217,7 @@ func EditUserPost(c *context.Context, f form.AdminEditUser) {
 	if err := models.UpdateUser(u); err != nil {
 		if models.IsErrEmailAlreadyUsed(err) {
 			c.Data["Err_Email"] = true
-			c.RenderWithErr(c.Tr("form.email_been_used"), USER_EDIT, &f)
+			c.RenderWithErr(c.Tr("form.email_been_used"), RouteUserEdit, &f)
 		} else {
 			c.Handle(500, "UpdateUser", err)
 		}

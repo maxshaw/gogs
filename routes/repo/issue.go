@@ -17,32 +17,32 @@ import (
 	"github.com/Unknwon/paginater"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/markup"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/markup"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	ISSUES     = "repo/issue/list"
-	ISSUE_NEW  = "repo/issue/new"
-	ISSUE_VIEW = "repo/issue/view"
+	RouteIssues    = "repo/issue/list"
+	RouteIssueNew  = "repo/issue/new"
+	RouteIssueView = "repo/issue/view"
 
-	LABELS = "repo/issue/labels"
+	RouteLabels = "repo/issue/labels"
 
-	MILESTONE      = "repo/issue/milestones"
-	MILESTONE_NEW  = "repo/issue/milestone_new"
-	MILESTONE_EDIT = "repo/issue/milestone_edit"
+	RouteMilestones   = "repo/issue/milestones"
+	RouteMilestoneNew = "repo/issue/milestone_new"
+	_                 = "repo/issue/milestone_edit"
 
-	ISSUE_TEMPLATE_KEY = "IssueTemplate"
+	RouteIssueTemplateKey = "IssueTemplate"
 )
 
 var (
 	ErrFileTypeForbidden = errors.New("File type is not allowed")
-	ErrTooManyFiles      = errors.New("Maximum number of files to upload exceeded")
+	_                    = errors.New("Maximum number of files to upload exceeded")
 
 	IssueTemplateCandidates = []string{
 		"ISSUE_TEMPLATE.md",
@@ -243,7 +243,7 @@ func issues(c *context.Context, isPullList bool) {
 		c.Data["State"] = "open"
 	}
 
-	c.HTML(200, ISSUES)
+	c.HTML(200, RouteIssues)
 }
 
 func Issues(c *context.Context) {
@@ -344,7 +344,7 @@ func NewIssue(c *context.Context) {
 	c.Data["PageIsIssueList"] = true
 	c.Data["RequireHighlightJS"] = true
 	c.Data["RequireSimpleMDE"] = true
-	setTemplateIfExists(c, ISSUE_TEMPLATE_KEY, IssueTemplateCandidates)
+	setTemplateIfExists(c, RouteIssueTemplateKey, IssueTemplateCandidates)
 	renderAttachmentSettings(c)
 
 	RetrieveRepoMetas(c, c.Repo.Repository)
@@ -352,7 +352,7 @@ func NewIssue(c *context.Context) {
 		return
 	}
 
-	c.HTML(200, ISSUE_NEW)
+	c.HTML(200, RouteIssueNew)
 }
 
 func ValidateRepoMetas(c *context.Context, f form.NewIssue) ([]int64, int64, int64) {
@@ -422,7 +422,7 @@ func NewIssuePost(c *context.Context, f form.NewIssue) {
 	}
 
 	if c.HasError() {
-		c.HTML(200, ISSUE_NEW)
+		c.HTML(200, RouteIssueNew)
 		return
 	}
 
@@ -654,7 +654,7 @@ func viewIssue(c *context.Context, isPullList bool) {
 	c.Data["Issue"] = issue
 	c.Data["IsIssueOwner"] = c.Repo.IsWriter() || (c.IsLogged && issue.IsPoster(c.User.ID))
 	c.Data["SignInLink"] = setting.AppSubURL + "/user/login?redirect_to=" + c.Data["Link"].(string)
-	c.HTML(200, ISSUE_VIEW)
+	c.HTML(200, RouteIssueView)
 }
 
 func ViewIssue(c *context.Context) {
@@ -970,7 +970,7 @@ func Labels(c *context.Context) {
 	c.Data["PageIsLabels"] = true
 	c.Data["RequireMinicolors"] = true
 	c.Data["LabelTemplates"] = models.LabelTemplates
-	c.HTML(200, LABELS)
+	c.HTML(200, RouteLabels)
 }
 
 func InitializeLabels(c *context.Context, f form.InitializeLabels) {
@@ -1101,7 +1101,7 @@ func Milestones(c *context.Context) {
 	}
 
 	c.Data["IsShowClosed"] = isShowClosed
-	c.HTML(200, MILESTONE)
+	c.HTML(200, RouteMilestones)
 }
 
 func NewMilestone(c *context.Context) {
@@ -1110,7 +1110,7 @@ func NewMilestone(c *context.Context) {
 	c.Data["PageIsMilestones"] = true
 	c.Data["RequireDatetimepicker"] = true
 	c.Data["DateLang"] = setting.DateLang(c.Locale.Language())
-	c.HTML(200, MILESTONE_NEW)
+	c.HTML(200, RouteMilestoneNew)
 }
 
 func NewMilestonePost(c *context.Context, f form.CreateMilestone) {
@@ -1121,7 +1121,7 @@ func NewMilestonePost(c *context.Context, f form.CreateMilestone) {
 	c.Data["DateLang"] = setting.DateLang(c.Locale.Language())
 
 	if c.HasError() {
-		c.HTML(200, MILESTONE_NEW)
+		c.HTML(200, RouteMilestoneNew)
 		return
 	}
 
@@ -1131,7 +1131,7 @@ func NewMilestonePost(c *context.Context, f form.CreateMilestone) {
 	deadline, err := time.ParseInLocation("2006-01-02", f.Deadline, time.Local)
 	if err != nil {
 		c.Data["Err_Deadline"] = true
-		c.RenderWithErr(c.Tr("repo.milestones.invalid_due_date_format"), MILESTONE_NEW, &f)
+		c.RenderWithErr(c.Tr("repo.milestones.invalid_due_date_format"), RouteMilestoneNew, &f)
 		return
 	}
 
@@ -1170,7 +1170,7 @@ func EditMilestone(c *context.Context) {
 	if len(m.DeadlineString) > 0 {
 		c.Data["deadline"] = m.DeadlineString
 	}
-	c.HTML(200, MILESTONE_NEW)
+	c.HTML(200, RouteMilestoneNew)
 }
 
 func EditMilestonePost(c *context.Context, f form.CreateMilestone) {
@@ -1181,7 +1181,7 @@ func EditMilestonePost(c *context.Context, f form.CreateMilestone) {
 	c.Data["DateLang"] = setting.DateLang(c.Locale.Language())
 
 	if c.HasError() {
-		c.HTML(200, MILESTONE_NEW)
+		c.HTML(200, RouteMilestoneNew)
 		return
 	}
 
@@ -1191,7 +1191,7 @@ func EditMilestonePost(c *context.Context, f form.CreateMilestone) {
 	deadline, err := time.ParseInLocation("2006-01-02", f.Deadline, time.Local)
 	if err != nil {
 		c.Data["Err_Deadline"] = true
-		c.RenderWithErr(c.Tr("repo.milestones.invalid_due_date_format"), MILESTONE_NEW, &f)
+		c.RenderWithErr(c.Tr("repo.milestones.invalid_due_date_format"), RouteMilestoneNew, &f)
 		return
 	}
 

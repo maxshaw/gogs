@@ -14,24 +14,22 @@ import (
 	"github.com/Unknwon/com"
 	"gopkg.in/macaron.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/cron"
-	"github.com/gogits/gogs/pkg/mailer"
-	"github.com/gogits/gogs/pkg/process"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/pkg/tool"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/cron"
+	"github.com/maxshaw/gogs/pkg/mailer"
+	"github.com/maxshaw/gogs/pkg/process"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/pkg/tool"
 )
 
 const (
-	DASHBOARD = "admin/dashboard"
-	CONFIG    = "admin/config"
-	MONITOR   = "admin/monitor"
+	RouteDashboard = "admin/dashboard"
+	RouteConfig    = "admin/config"
+	RouteMonitor   = "admin/monitor"
 )
 
-var (
-	startTime = time.Now()
-)
+var startTime = time.Now()
 
 var sysStatus struct {
 	Uptime       string
@@ -113,16 +111,16 @@ func updateSystemStatus() {
 }
 
 // Operation types.
-type AdminOperation int
+type adminOperation int
 
 const (
-	CLEAN_INACTIVATE_USER AdminOperation = iota + 1
-	CLEAN_REPO_ARCHIVES
-	CLEAN_MISSING_REPOS
-	GIT_GC_REPOS
-	SYNC_SSH_AUTHORIZED_KEY
-	SYNC_REPOSITORY_HOOKS
-	REINIT_MISSING_REPOSITORY
+	CleanInactivateUser     adminOperation = iota + 1
+	CleanRepoArchives
+	CleanMissingRepos
+	GitGcRepos
+	SyncSshAuthorizedKey
+	SyncRepositoryHooks
+	ReinitMissingRepository
 )
 
 func Dashboard(c *context.Context) {
@@ -136,26 +134,26 @@ func Dashboard(c *context.Context) {
 		var err error
 		var success string
 
-		switch AdminOperation(op) {
-		case CLEAN_INACTIVATE_USER:
+		switch adminOperation(op) {
+		case CleanInactivateUser:
 			success = c.Tr("admin.dashboard.delete_inactivate_accounts_success")
 			err = models.DeleteInactivateUsers()
-		case CLEAN_REPO_ARCHIVES:
+		case CleanRepoArchives:
 			success = c.Tr("admin.dashboard.delete_repo_archives_success")
 			err = models.DeleteRepositoryArchives()
-		case CLEAN_MISSING_REPOS:
+		case CleanMissingRepos:
 			success = c.Tr("admin.dashboard.delete_missing_repos_success")
 			err = models.DeleteMissingRepositories()
-		case GIT_GC_REPOS:
+		case GitGcRepos:
 			success = c.Tr("admin.dashboard.git_gc_repos_success")
 			err = models.GitGcRepos()
-		case SYNC_SSH_AUTHORIZED_KEY:
+		case SyncSshAuthorizedKey:
 			success = c.Tr("admin.dashboard.resync_all_sshkeys_success")
 			err = models.RewriteAllPublicKeys()
-		case SYNC_REPOSITORY_HOOKS:
+		case SyncRepositoryHooks:
 			success = c.Tr("admin.dashboard.resync_all_hooks_success")
 			err = models.SyncRepositoryHooks()
-		case REINIT_MISSING_REPOSITORY:
+		case ReinitMissingRepository:
 			success = c.Tr("admin.dashboard.reinit_missing_repos_success")
 			err = models.ReinitMissingRepositories()
 		}
@@ -173,7 +171,7 @@ func Dashboard(c *context.Context) {
 	// FIXME: update periodically
 	updateSystemStatus()
 	c.Data["SysStatus"] = sysStatus
-	c.HTML(200, DASHBOARD)
+	c.HTML(200, RouteDashboard)
 }
 
 func SendTestMail(c *context.Context) {
@@ -246,7 +244,7 @@ func Config(c *context.Context) {
 	}
 	c.Data["Loggers"] = loggers
 
-	c.HTML(200, CONFIG)
+	c.HTML(200, RouteConfig)
 }
 
 func Monitor(c *context.Context) {
@@ -255,5 +253,5 @@ func Monitor(c *context.Context) {
 	c.Data["PageIsAdminMonitor"] = true
 	c.Data["Processes"] = process.Processes
 	c.Data["Entries"] = cron.ListTasks()
-	c.HTML(200, MONITOR)
+	c.HTML(200, RouteMonitor)
 }

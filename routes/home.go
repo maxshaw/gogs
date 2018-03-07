@@ -7,24 +7,24 @@ package routes
 import (
 	"github.com/Unknwon/paginater"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
-	"github.com/gogits/gogs/routes/user"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/routes/user"
 )
 
 const (
-	HOME                  = "home"
-	EXPLORE_REPOS         = "explore/repos"
-	EXPLORE_USERS         = "explore/users"
-	EXPLORE_ORGANIZATIONS = "explore/organizations"
+	RouteHome         = "home"
+	RouteExploreRepos = "explore/repos"
+	RouteExploreUser  = "explore/users"
+	RouteExploreOrg   = "explore/organizations"
 )
 
 func Home(c *context.Context) {
 	if c.IsLogged {
 		if !c.User.IsActive && setting.Service.RegisterEmailConfirm {
 			c.Data["Title"] = c.Tr("auth.active_your_account")
-			c.Success(user.ACTIVATE)
+			c.Success(user.RouteActivate)
 		} else {
 			user.Dashboard(c)
 		}
@@ -39,7 +39,7 @@ func Home(c *context.Context) {
 	}
 
 	c.Data["PageIsHome"] = true
-	c.Success(HOME)
+	c.Success(RouteHome)
 }
 
 func ExploreRepos(c *context.Context) {
@@ -74,7 +74,7 @@ func ExploreRepos(c *context.Context) {
 	}
 	c.Data["Repos"] = repos
 
-	c.Success(EXPLORE_REPOS)
+	c.Success(RouteExploreRepos)
 }
 
 type UserSearchOptions struct {
@@ -138,7 +138,7 @@ func ExploreUsers(c *context.Context) {
 		Ranger:   models.Users,
 		PageSize: setting.UI.ExplorePagingNum,
 		OrderBy:  "updated_unix DESC",
-		TplName:  EXPLORE_USERS,
+		TplName:  RouteExploreUser,
 	})
 }
 
@@ -153,7 +153,7 @@ func ExploreOrganizations(c *context.Context) {
 		Ranger:   models.Organizations,
 		PageSize: setting.UI.ExplorePagingNum,
 		OrderBy:  "updated_unix DESC",
-		TplName:  EXPLORE_ORGANIZATIONS,
+		TplName:  RouteExploreOrg,
 	})
 }
 

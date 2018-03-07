@@ -10,16 +10,16 @@ import (
 
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/markup"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/markup"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	RELEASES    = "repo/release/list"
-	RELEASE_NEW = "repo/release/new"
+	RouteReleases   = "repo/release/list"
+	RouteReleaseNew = "repo/release/new"
 )
 
 // calReleaseNumCommitsBehind calculates given release has how many commits behind release target.
@@ -146,7 +146,7 @@ func Releases(c *context.Context) {
 	if len(results) > 0 {
 		c.Data["NextAfter"] = results[len(results)-1].TagName
 	}
-	c.HTML(200, RELEASES)
+	c.HTML(200, RouteReleases)
 }
 
 func renderReleaseAttachmentSettings(c *context.Context) {
@@ -162,7 +162,7 @@ func NewRelease(c *context.Context) {
 	c.Data["PageIsReleaseList"] = true
 	c.Data["tag_target"] = c.Repo.Repository.DefaultBranch
 	renderReleaseAttachmentSettings(c)
-	c.HTML(200, RELEASE_NEW)
+	c.HTML(200, RouteReleaseNew)
 }
 
 func NewReleasePost(c *context.Context, f form.NewRelease) {
@@ -171,12 +171,12 @@ func NewReleasePost(c *context.Context, f form.NewRelease) {
 	renderReleaseAttachmentSettings(c)
 
 	if c.HasError() {
-		c.HTML(200, RELEASE_NEW)
+		c.HTML(200, RouteReleaseNew)
 		return
 	}
 
 	if !c.Repo.GitRepo.IsBranchExist(f.Target) {
-		c.RenderWithErr(c.Tr("form.target_branch_not_exist"), RELEASE_NEW, &f)
+		c.RenderWithErr(c.Tr("form.target_branch_not_exist"), RouteReleaseNew, &f)
 		return
 	}
 
@@ -224,9 +224,9 @@ func NewReleasePost(c *context.Context, f form.NewRelease) {
 		c.Data["Err_TagName"] = true
 		switch {
 		case models.IsErrReleaseAlreadyExist(err):
-			c.RenderWithErr(c.Tr("repo.release.tag_name_already_exist"), RELEASE_NEW, &f)
+			c.RenderWithErr(c.Tr("repo.release.tag_name_already_exist"), RouteReleaseNew, &f)
 		case models.IsErrInvalidTagName(err):
-			c.RenderWithErr(c.Tr("repo.release.tag_name_invalid"), RELEASE_NEW, &f)
+			c.RenderWithErr(c.Tr("repo.release.tag_name_invalid"), RouteReleaseNew, &f)
 		default:
 			c.Handle(500, "NewRelease", err)
 		}
@@ -262,7 +262,7 @@ func EditRelease(c *context.Context) {
 	c.Data["prerelease"] = rel.IsPrerelease
 	c.Data["IsDraft"] = rel.IsDraft
 
-	c.HTML(200, RELEASE_NEW)
+	c.HTML(200, RouteReleaseNew)
 }
 
 func EditReleasePost(c *context.Context, f form.EditRelease) {
@@ -290,7 +290,7 @@ func EditReleasePost(c *context.Context, f form.EditRelease) {
 	c.Data["IsDraft"] = rel.IsDraft
 
 	if c.HasError() {
-		c.HTML(200, RELEASE_NEW)
+		c.HTML(200, RouteReleaseNew)
 		return
 	}
 

@@ -11,17 +11,17 @@ import (
 	"github.com/go-xorm/core"
 	log "gopkg.in/clog.v1"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/pkg/auth/ldap"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/form"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/pkg/auth/ldap"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/form"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	AUTHS     = "admin/auth/list"
-	AUTH_NEW  = "admin/auth/new"
-	AUTH_EDIT = "admin/auth/edit"
+	RouteAuthList = "admin/auth/list"
+	RouteAuthNew  = "admin/auth/new"
+	RouteAuthEdit = "admin/auth/edit"
 )
 
 func Authentications(c *context.Context) {
@@ -37,7 +37,7 @@ func Authentications(c *context.Context) {
 	}
 
 	c.Data["Total"] = models.CountLoginSources()
-	c.HTML(200, AUTHS)
+	c.HTML(200, RouteAuthList)
 }
 
 type dropdownItem struct {
@@ -72,7 +72,7 @@ func NewAuthSource(c *context.Context) {
 	c.Data["AuthSources"] = authSources
 	c.Data["SecurityProtocols"] = securityProtocols
 	c.Data["SMTPAuths"] = models.SMTPAuths
-	c.HTML(200, AUTH_NEW)
+	c.HTML(200, RouteAuthNew)
 }
 
 func parseLDAPConfig(f form.Authentication) *models.LDAPConfig {
@@ -146,7 +146,7 @@ func NewAuthSourcePost(c *context.Context, f form.Authentication) {
 	c.Data["HasTLS"] = hasTLS
 
 	if c.HasError() {
-		c.HTML(200, AUTH_NEW)
+		c.HTML(200, RouteAuthNew)
 		return
 	}
 
@@ -158,7 +158,7 @@ func NewAuthSourcePost(c *context.Context, f form.Authentication) {
 	}); err != nil {
 		if models.IsErrLoginSourceAlreadyExist(err) {
 			c.Data["Err_Name"] = true
-			c.RenderWithErr(c.Tr("admin.auths.login_source_exist", err.(models.ErrLoginSourceAlreadyExist).Name), AUTH_NEW, f)
+			c.RenderWithErr(c.Tr("admin.auths.login_source_exist", err.(models.ErrLoginSourceAlreadyExist).Name), RouteAuthNew, f)
 		} else {
 			c.Handle(500, "CreateSource", err)
 		}
@@ -187,7 +187,7 @@ func EditAuthSource(c *context.Context) {
 	c.Data["Source"] = source
 	c.Data["HasTLS"] = source.HasTLS()
 
-	c.HTML(200, AUTH_EDIT)
+	c.HTML(200, RouteAuthEdit)
 }
 
 func EditAuthSourcePost(c *context.Context, f form.Authentication) {
@@ -206,7 +206,7 @@ func EditAuthSourcePost(c *context.Context, f form.Authentication) {
 	c.Data["HasTLS"] = source.HasTLS()
 
 	if c.HasError() {
-		c.HTML(200, AUTH_EDIT)
+		c.HTML(200, RouteAuthEdit)
 		return
 	}
 

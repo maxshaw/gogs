@@ -11,18 +11,18 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/Unknwon/paginater"
 
-	"github.com/gogits/gogs/models"
-	"github.com/gogits/gogs/models/errors"
-	"github.com/gogits/gogs/pkg/context"
-	"github.com/gogits/gogs/pkg/setting"
+	"github.com/maxshaw/gogs/models"
+	"github.com/maxshaw/gogs/models/errors"
+	"github.com/maxshaw/gogs/pkg/context"
+	"github.com/maxshaw/gogs/pkg/setting"
 )
 
 const (
-	DASHBOARD = "user/dashboard/dashboard"
-	NEWS_FEED = "user/dashboard/feeds"
-	ISSUES    = "user/dashboard/issues"
-	PROFILE   = "user/profile"
-	ORG_HOME  = "org/home"
+	RouteDashboard = "user/dashboard/dashboard"
+	RouteNewsFeed  = "user/dashboard/feeds"
+	RouteIssues    = "user/dashboard/issues"
+	RouteProfile   = "user/profile"
+	RouteOrgHome   = "org/home"
 )
 
 // getDashboardContextUser finds out dashboard is viewing as which context user.
@@ -100,7 +100,7 @@ func Dashboard(c *context.Context) {
 	}
 
 	if c.Req.Header.Get("X-AJAX") == "true" {
-		c.HTML(200, NEWS_FEED)
+		c.HTML(200, RouteNewsFeed)
 		return
 	}
 
@@ -161,7 +161,7 @@ func Dashboard(c *context.Context) {
 	c.Data["MirrorCount"] = len(mirrors)
 	c.Data["Mirrors"] = mirrors
 
-	c.HTML(200, DASHBOARD)
+	c.HTML(200, RouteDashboard)
 }
 
 func Issues(c *context.Context) {
@@ -341,7 +341,7 @@ func Issues(c *context.Context) {
 		c.Data["State"] = "open"
 	}
 
-	c.HTML(200, ISSUES)
+	c.HTML(200, RouteIssues)
 }
 
 func ShowSSHKeys(c *context.Context, uid int64) {
@@ -411,7 +411,7 @@ func showOrgProfile(c *context.Context) {
 
 	c.Data["Teams"] = org.Teams
 
-	c.HTML(200, ORG_HOME)
+	c.HTML(200, RouteOrgHome)
 }
 
 func Email2User(c *context.Context) {
