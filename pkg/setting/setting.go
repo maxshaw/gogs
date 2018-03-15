@@ -564,7 +564,7 @@ func NewContext() {
 		"StampNano":   time.StampNano,
 	}[Cfg.Section("time").Key("FORMAT").MustString("RFC1123")]
 
-	TimeZone = Cfg.Section("timezone").Key("TIMEZONE").MustString("Asia/Shanghai")
+	TimeZone = Cfg.Section("time").Key("TIMEZONE").MustString("Asia/Shanghai")
 
 	RunUser = Cfg.Section("").Key("RUN_USER").String()
 	// Does not check run user when the install lock is off.
